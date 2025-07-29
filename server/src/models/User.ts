@@ -1,8 +1,13 @@
 import bcrypt from 'bcrypt';
-import mongoose, { Schema, Document } from 'mongoose';
-import { UserType } from '../types/User';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
-export interface UserDocument extends UserType, Document {
+export interface UserDocument extends Document {
+  _id: Types.ObjectId;
+  username: string;
+  email: string;
+  password: string;
+  createdAt?: Date;
+  updatedAt?: Date;
   comparePassword(password: string): Promise<boolean>;
 }
 
