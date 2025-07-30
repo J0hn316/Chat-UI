@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Types } from 'mongoose';
-import { JWT_SECRET } from './config';
+import { JWT_SECRET_TYPED } from './config';
 
 /**
  * Generates a JWT token with userId payload.
@@ -10,5 +10,5 @@ import { JWT_SECRET } from './config';
 
 // 🔐 Helper: Generate JWT token
 export default function generateToken(userId: string | Types.ObjectId): string {
-  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ id: userId }, JWT_SECRET_TYPED, { expiresIn: '7d' });
 }

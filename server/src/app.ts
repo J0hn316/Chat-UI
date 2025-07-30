@@ -1,11 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 
+import userRoutes from './routes/userRoutes';
+
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Use user routes
+app.use('/api/users', userRoutes);
 
 // Routes
 app.get('/', (req, res) => {
