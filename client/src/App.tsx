@@ -1,7 +1,19 @@
-export default function App() {
+import type { JSX } from 'react';
+import { Route, Routes } from 'react-router-dom';
+
+// Importing pages
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ChatPage from './pages/ChatPage';
+import PageNotFound from './pages/PageNotFound';
+
+export default function App(): JSX.Element {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 text-2xl font-bold">
-      Hello from Chat-UI ✨
-    </div>
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/chat" element={<ChatPage />} />
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
   );
 }
