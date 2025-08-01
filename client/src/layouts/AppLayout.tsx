@@ -1,11 +1,13 @@
 import type { JSX } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import Navbar from '../components/Navbar';
+
 export default function AppLayout(): JSX.Element {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white">
-      {/* Optional: Add navbar/sidebar here */}
-      <main className="p-4">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1 p-4">
         <Outlet />
       </main>
     </div>
