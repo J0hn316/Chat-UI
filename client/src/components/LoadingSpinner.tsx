@@ -2,8 +2,14 @@ import type { JSX } from 'react';
 
 export default function LoadingSpinner(): JSX.Element {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-400 dark:bg-gray-800">
-      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    <div className="flex space-x-2 justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"
+          style={{ animationDelay: `${i * 0.2}s` }}
+        ></span>
+      ))}
     </div>
   );
 }
