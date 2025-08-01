@@ -6,6 +6,7 @@ export interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
+  passwordConfirmation: string;
   createdAt?: Date;
   updatedAt?: Date;
   comparePassword(password: string): Promise<boolean>;
@@ -21,7 +22,13 @@ const UserSchema = new Schema<UserDocument>(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true, minlength: 6 },
+    password: { type: String, required: true, minlength: 6, trim: true },
+    passwordConfirmation: {
+      type: String,
+      required: true,
+      minlength: 6,
+      trim: true,
+    },
   },
   {
     timestamps: true,
@@ -34,6 +41,9 @@ UserSchema.pre('save', async function (next): Promise<void> {
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+
+  // Ensure password confirmation matches the hashed password
+  this.passwordConfirmation = this.password;
   next();
 });
 

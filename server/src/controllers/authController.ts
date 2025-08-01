@@ -14,7 +14,12 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const user: UserDocument = new UserModel({ username, email, password });
+    const user: UserDocument = new UserModel({
+      username,
+      email,
+      password,
+      passwordConfirmation: password,
+    });
     const savedUser = await user.save();
 
     const token = generateToken(savedUser._id);

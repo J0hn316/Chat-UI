@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { JSX } from 'react';
+import type { AxiosError } from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
 import api from '../utils/api';
@@ -25,9 +26,18 @@ export default function LoginPage(): JSX.Element {
 
       await login(token);
       navigate('/dashboard');
-    } catch (error) {
-      setError('Login failed. Please check your credentials.');
-      console.error('Login error:', error);
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message: string }>;
+      if (
+        axiosError.response &&
+        axiosError.response.data &&
+        typeof axiosError.response.data.message === 'string'
+      ) {
+        setError(axiosError.response.data.message);
+      } else {
+        setError('Login failed. Please check your credentials.');
+        console.error('Login error:', error);
+      }
     } finally {
       setLoading(false);
     }

@@ -12,6 +12,7 @@ export default function App(): JSX.Element {
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/chat" element={<ChatPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
