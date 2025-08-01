@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { JSX } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
@@ -67,9 +67,9 @@ export default function LoginPage(): JSX.Element {
         </form>
         <p className="mt-4 text-center text-gray-400">
           Don't have an account?{' '}
-          <a href="/register" className="text-blue-500 hover:underline">
+          <Link to="/register" className="text-blue-500 hover:underline">
             Register here
-          </a>
+          </Link>
         </p>
       </div>
     </div>
