@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode, JSX } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import api from '../utils/api';
 import type { User } from '../types/User';
@@ -15,8 +16,8 @@ export default function AuthProvider({
     return localStorage.getItem('token');
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
-  // 🔄 Fetch current user when token exists
   useEffect(() => {
     const fetchUser = async (): Promise<void> => {
       if (!token) {
@@ -25,6 +26,9 @@ export default function AuthProvider({
       }
 
       try {
+        // ⏱️ Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
         const res = await api.get('/me');
         setUser(res.data.user);
       } catch (err) {
@@ -34,13 +38,37 @@ export default function AuthProvider({
         setIsLoading(false);
       }
     };
+
     fetchUser();
   }, [token]);
+
+  // 🔄 Fetch current user when token exists
+  // useEffect(() => {
+  //   const fetchUser = async (): Promise<void> => {
+  //     if (!token) {
+  //       setIsLoading(false);
+  //       return;
+  //     }
+
+  //     try {
+  //       const res = await api.get('/me');
+  //       setUser(res.data.user);
+  //     } catch (err) {
+  //       console.error('Failed to fetch user:', err);
+  //       setUser(null);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchUser();
+  // }, [token]);
 
   // 🔑 Login function to set token and user
   const login = async (newToken: string): Promise<void> => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
+    setIsLoading(true);
+    navigate('/dashboard');
   };
 
   // 🚪 Logout function to clear token and user
@@ -48,6 +76,7 @@ export default function AuthProvider({
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    navigate('/login');
   };
 
   return (
