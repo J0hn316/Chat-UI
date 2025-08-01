@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import type { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../hooks/useAuth';
+
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function DashboardPage(): JSX.Element {
   const { user, isLoading, logout } = useAuth();
@@ -15,7 +18,11 @@ export default function DashboardPage(): JSX.Element {
   }, [user, isLoading, navigate]);
 
   if (isLoading) {
-    return <div className="text-center mt-10 text-gray-600">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-400 dark:bg-gray-800">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return (
