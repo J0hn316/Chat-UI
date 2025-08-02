@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import userRoutes from './routes/userRoutes';
+import messageRoutes from './routes/messageRoutes';
 
 const app = express();
 
@@ -11,6 +12,9 @@ app.use(express.json());
 
 // Use user routes
 app.use('/auth', userRoutes);
+
+// Use message routes
+app.use('/api/messages', messageRoutes);
 
 // Routes
 app.get('/', (req, res) => {
