@@ -5,6 +5,7 @@ export interface IMessage extends Document {
   recipient: mongoose.Types.ObjectId;
   content: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const messageSchema = new Schema<IMessage>(
@@ -13,7 +14,10 @@ const messageSchema = new Schema<IMessage>(
     recipient: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String, required: true },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    versionKey: false,
+  }
 );
 
 const Message = mongoose.model<IMessage>('Message', messageSchema);
