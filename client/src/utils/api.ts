@@ -1,12 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/auth',
-  headers: {
-    Authorization: localStorage.getItem('token')
-      ? `Bearer ${localStorage.getItem('token')}`
-      : '',
-  },
+  baseURL: 'http://localhost:5000',
 });
 
 // Automatically add token to requests if it exists.
