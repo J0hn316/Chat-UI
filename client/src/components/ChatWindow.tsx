@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { useEffect, useState, useRef } from 'react';
 
+import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 import type { ChatMessage } from '../api/chatApi';
 import { getMessagesWithUser, sendMessage } from '../api/chatApi';
@@ -19,21 +20,8 @@ export default function ChatWindow({
   const [loading, setLoading] = useState<boolean>(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const loadingMessages = async (): Promise<void> => {
-      setLoading(true);
-
-      try {
-        const data = await getMessagesWithUser(userId);
-        setMessages(data);
-      } catch (error) {
-        console.error('Failed to load messages:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadingMessages();
-  }, [userId]);
+  const { user } = useAuth();
+  const currentUserId = user?._id;
 
   const handleSend = async (): Promise<void> => {
     if (!content.trim()) return;
@@ -51,24 +39,65 @@ export default function ChatWindow({
     if (e.key === 'Enter') handleSend();
   };
 
+  useEffect(() => {
+    const loadingMessages = async (): Promise<void> => {
+      setLoading(true);
+
+      try {
+        const data = await getMessagesWithUser(userId);
+        setMessages(data);
+      } catch (error) {
+        console.error('Failed to load messages:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadingMessages();
+  }, [userId]);
+
+  // Scroll to bottom on new message
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
   return (
     <div className="flex flex-col min-h-[80vh] h-full w-full p-4 bg-white dark:bg-gray-800 rounded">
       <h2 className="text-xl font-semibold mb-4 text-blue-500">
         Chat with {username}
       </h2>
 
-      <div className="flex-1 overflow-y-auto border p-3 rounded bg-gray-100 dark:bg-gray-700 mb-3 space-y-2">
+      <div className="flex-1 flex flex-col overflow-y-auto border p-3 rounded bg-gray-100 dark:bg-gray-700 mb-3 space-y-2">
         {loading ? (
           <LoadingSpinner />
         ) : messages.length > 0 ? (
-          messages.map((msg) => (
-            <div
-              key={msg._id}
-              className="bg-blue-100 dark:bg-blue-600 text-sm p-2 rounded"
-            >
-              <strong>{msg.sender.username}</strong>:{msg.content}
-            </div>
-          ))
+          messages.map((msg) => {
+            const isSent = msg.sender._id === currentUserId;
+
+            return (
+              <div
+                key={msg._id}
+                className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`p-2 rounded max-w-xs sm:max-w-sm text-sm ${
+                    isSent
+                      ? 'bg-blue-500 text-white self-end'
+                      : 'bg-gray-300 dark:bg-gray-600 text-black dark:text-white self-start'
+                  }`}
+                >
+                  <span className="block font-semibold">
+                    {msg.sender.username}
+                  </span>
+                  <span>{msg.content}</span>
+                  <span className="block text-xs text-gray-600 dark:text-gray-300 mt-1 text-right">
+                    {new Date(msg.createdAt).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            );
+          })
         ) : (
           <p className="text-gray-500 dark:text-gray-300">
             No messages yet. Start the conversation!
