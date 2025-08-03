@@ -29,7 +29,7 @@ export default function AuthProvider({
         // ⏱️ Simulate network delay
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
-        const res = await api.get('/auth/me');
+        const res = await api.get('/users/me');
         setUser(res.data.user);
       } catch (err) {
         console.error('Failed to fetch user:', err);

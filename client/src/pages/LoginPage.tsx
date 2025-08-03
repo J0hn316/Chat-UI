@@ -21,7 +21,7 @@ export default function LoginPage(): JSX.Element {
     setError(null);
 
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/users/login', { email, password });
       const { token } = res.data;
 
       await login(token);

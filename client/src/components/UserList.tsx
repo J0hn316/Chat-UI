@@ -20,7 +20,7 @@ export default function UserList({
   useEffect(() => {
     const fetchUsers = async (): Promise<void> => {
       try {
-        const res = await api.get('/auth/users');
+        const res = await api.get('/users');
         setUsers(res.data.users);
       } catch (error) {
         console.error('Failed to fetch users:', error);

@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Use user routes
-app.use('/auth', userRoutes);
+app.use('/api/users', userRoutes);
 
 // Use message routes
 app.use('/api/messages', messageRoutes);
