@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
-import api from '../utils/api';
 import type { User } from '../types/User';
+import { getUsers } from '../api/userApi';
 import LoadingSpinner from './LoadingSpinner';
 
 interface UserListProps {
@@ -20,8 +20,8 @@ export default function UserList({
   useEffect(() => {
     const fetchUsers = async (): Promise<void> => {
       try {
-        const res = await api.get('/users');
-        setUsers(res.data.users);
+        const data = await getUsers();
+        setUsers(data);
       } catch (error) {
         console.error('Failed to fetch users:', error);
       } finally {

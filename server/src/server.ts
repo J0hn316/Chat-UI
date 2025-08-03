@@ -16,9 +16,4 @@ app.use('/api/users', userRoutes);
 // Use message routes
 app.use('/api/messages', messageRoutes);
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Chat-UI API is running!');
-});
-
 export default app;
