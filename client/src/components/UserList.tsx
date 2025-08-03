@@ -32,24 +32,39 @@ export default function UserList({
   }, []);
 
   return (
-    <div className="w-1/3 border-r h-full overflow-y-auto bg-gray-100 dark:bg-gray-700 p-4">
+    <div className="w-1/3 border-r h-full bg-gray-100 dark:bg-gray-700 p-4">
       <h3 className="font-bold mb-4 text-blue-500">Users</h3>
+
       {loading ? (
         <LoadingSpinner />
       ) : (
-        users.map((user) => (
-          <div
-            key={user._id}
-            className={`p-2 rounded cursor-pointer ${
-              selectedUserId === user._id
-                ? 'bg-blue-300 dark:bg-blue-600 text-white'
-                : 'hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-            onClick={() => onSelectUser(user)}
-          >
-            {user.username}
-          </div>
-        ))
+        <div
+          className="space-y-2 max-h-[80vh] overflow-y-auto"
+          role="listbox"
+          aria-label="User list"
+        >
+          {users.length > 0 ? (
+            users.map((user) => (
+              <div
+                key={user._id}
+                role="option"
+                aria-selected={selectedUserId === user._id}
+                className={`p-2 rounded cursor-pointer transition ${
+                  selectedUserId === user._id
+                    ? 'bg-blue-300 dark:bg-blue-600 text-white'
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+                onClick={() => onSelectUser(user)}
+              >
+                {user.username}
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              No users found.
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

@@ -1,9 +1,9 @@
 import api from '../utils/api';
 
 export type ChatMessage = {
-  id: string;
-  sender: string;
-  recipient: string;
+  _id: string;
+  sender: { _id: string; username: string };
+  recipient: { _id: string; username: string };
   content: string;
   createdAt: string;
 };

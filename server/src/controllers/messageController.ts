@@ -27,6 +27,9 @@ export const sendMessage = async (
       recipient: recipientId,
       content,
     });
+    // Populate the sender field so frontend has full user object
+    await message.populate('sender', 'username');
+
     res.status(201).json({ message });
   } catch (error) {
     console.error('Send message error:', error);
@@ -53,7 +56,10 @@ export const getMessagesWithUser = async (
         { sender: userId, recipient: otherUserId },
         { sender: otherUserId, recipient: userId },
       ],
-    }).sort({ createdAt: 1 });
+    })
+      .sort({ createdAt: 1 })
+      .populate('sender', 'username')
+      .populate('recipient', 'username');
 
     res.status(200).json({ messages });
   } catch (error) {
