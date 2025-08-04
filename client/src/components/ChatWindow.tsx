@@ -18,6 +18,9 @@ export default function ChatWindow({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [sending, setSending] = useState(false);
+
+  // Reference to scroll to bottom of chat
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuth();
@@ -25,6 +28,7 @@ export default function ChatWindow({
 
   const handleSend = async (): Promise<void> => {
     if (!content.trim()) return;
+    setSending(true);
 
     try {
       const newMessage = await sendMessage(userId, content);
@@ -32,11 +36,19 @@ export default function ChatWindow({
       setContent('');
     } catch (err) {
       console.error('Failed to send message:', err);
+    } finally {
+      setSending(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter') handleSend();
+  };
+
+  const getInitials = (name: string): string => {
+    const parts = name.trim().split(/[\s_-]+/);
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
   };
 
   useEffect(() => {
@@ -68,7 +80,7 @@ export default function ChatWindow({
         Chat with {username}
       </h2>
 
-      <div className="flex-1 flex flex-col overflow-y-auto border p-3 rounded bg-gray-100 dark:bg-gray-700 mb-3 space-y-2">
+      <div className="flex-1 overflow-y-auto border p-3 rounded bg-gray-100 dark:bg-gray-700 mb-3 space-y-2">
         {loading ? (
           <LoadingSpinner />
         ) : messages.length > 0 ? (
@@ -78,20 +90,29 @@ export default function ChatWindow({
             return (
               <div
                 key={msg._id}
-                className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
+                className={`flex items-start gap-2 ${
+                  isSent ? 'justify-end' : 'justify-start'
+                }`}
               >
+                {msg.sender._id !== currentUserId && (
+                  <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
+                    {getInitials(msg.sender.username)}
+                  </div>
+                )}
                 <div
-                  className={`p-2 rounded max-w-xs sm:max-w-sm text-sm ${
+                  className={`p-3 rounded-lg shadow max-w-[80%] sm:max-w-sm text-sm transition-all duration-200 ease-in transform ${
                     isSent
-                      ? 'bg-blue-500 text-white self-end'
-                      : 'bg-gray-300 dark:bg-gray-600 text-black dark:text-white self-start'
+                      ? 'bg-blue-600 text-white translate-x-2'
+                      : 'bg-gray-200 dark:bg-gray-600 text-black dark:text-white -translate-x-2'
                   }`}
                 >
                   <span className="block font-semibold">
-                    {msg.sender.username}
+                    {msg.sender._id === currentUserId
+                      ? 'You'
+                      : msg.sender.username || 'Unknown'}
                   </span>
-                  <span>{msg.content}</span>
-                  <span className="block text-xs text-gray-600 dark:text-gray-300 mt-1 text-right">
+                  <span className="block">{msg.content}</span>
+                  <span className="block text-xs text-black dark:text-gray-300 mt-1 text-right">
                     {new Date(msg.createdAt).toLocaleString()}
                   </span>
                 </div>
@@ -117,8 +138,9 @@ export default function ChatWindow({
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           onClick={handleSend}
+          disabled={sending}
         >
-          Send
+          {sending ? 'Sending...' : 'Send'}
         </button>
       </div>
     </div>
