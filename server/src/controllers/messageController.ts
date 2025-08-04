@@ -27,10 +27,20 @@ export const sendMessage = async (
       recipient: recipientId,
       content,
     });
+
     // Populate the sender field so frontend has full user object
     await message.populate('sender', 'username');
 
     res.status(201).json({ message });
+
+    // Emit message using Socket.IO
+    const io = req.app.get('io');
+
+    if (io) {
+      io.to(recipientId).emit('newMessage', message);
+    } else {
+      console.error('Socket.IO instance not found');
+    }
   } catch (error) {
     console.error('Send message error:', error);
     res.status(500).json({ message: 'Failed to send message' });

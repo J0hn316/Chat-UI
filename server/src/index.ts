@@ -24,6 +24,12 @@ app.set('io', io);
 io.on('connection', (socket) => {
   console.log(`🟢 New client connected: ${socket.id}`);
 
+  // Join a room based on user ID
+  socket.on('join', (userId: string) => {
+    socket.join(userId);
+    console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log(`🔴 Client disconnected: ${socket.id}`);
