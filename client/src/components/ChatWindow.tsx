@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { useEffect, useState, useRef } from 'react';
 
+import socket from '../utils/socket';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 import type { ChatMessage } from '../api/chatApi';
@@ -51,6 +52,7 @@ export default function ChatWindow({
     return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
   };
 
+  // Fetch chat history
   useEffect(() => {
     const loadingMessages = async (): Promise<void> => {
       setLoading(true);
@@ -73,6 +75,23 @@ export default function ChatWindow({
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  // Real time updates with socket
+  useEffect(() => {
+    const handleIncomingMessage = (msg: ChatMessage): void => {
+      const isRelevant =
+        msg.sender._id === userId ||
+        msg.recipient._id === currentUserId ||
+        (msg.sender._id === currentUserId && msg.recipient._id === userId);
+
+      if (isRelevant) setMessages((prev) => [...prev, msg]);
+    };
+    socket.on('newMessage', handleIncomingMessage);
+
+    return () => {
+      socket.off('newMessage', handleIncomingMessage);
+    };
+  }, [userId, currentUserId]);
 
   return (
     <div className="flex flex-col min-h-[80vh] h-full w-full p-4 bg-white dark:bg-gray-800 rounded">

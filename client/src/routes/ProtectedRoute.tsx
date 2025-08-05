@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function ProtectedRoute({
   children,
@@ -9,8 +10,8 @@ export default function ProtectedRoute({
 }): JSX.Element {
   const { user, isLoading } = useAuth();
 
-  // Optionally, you can show a loading spinner or message
-  if (isLoading) return <div>Loading...</div>;
+  // If loading, show spinner
+  if (isLoading) return <LoadingSpinner />;
 
   return user ? children : <Navigate to="/login" replace />;
 }

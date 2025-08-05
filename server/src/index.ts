@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { createServer } from 'http';
-import { Server as SocketIOServer } from 'socket.io';
 
 import app from './server';
+import { setupSocket } from './utils/socket';
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || '';
@@ -10,31 +10,11 @@ const MONGO_URI = process.env.MONGO_URI || '';
 // Create HTTP server
 const httpServer = createServer(app);
 
-// Initialize Socket.IO
-const io = new SocketIOServer(httpServer, {
-  cors: {
-    origin: 'http://localhost:5173', // Adjust this to your client URL
-    credentials: true,
-  },
-});
+// Setup Socket.IO
+const io = setupSocket(httpServer);
 
+// Make io available in the app
 app.set('io', io);
-
-// Listen for Socket.IO connections
-io.on('connection', (socket) => {
-  console.log(`🟢 New client connected: ${socket.id}`);
-
-  // Join a room based on user ID
-  socket.on('join', (userId: string) => {
-    socket.join(userId);
-    console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
-  });
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log(`🔴 Client disconnected: ${socket.id}`);
-  });
-});
 
 mongoose
   .connect(MONGO_URI)
