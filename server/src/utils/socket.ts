@@ -19,6 +19,11 @@ export function setupSocket(server: HttpServer): SocketIOServer {
       console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
     });
 
+    // Typing indicator event
+    socket.on('typing', ({ to, from }) => {
+      socket.to(to).emit('userTyping', { from });
+    });
+
     // 💬 Handle sending messages
     socket.on('message:create', async ({ senderId, recipientId, content }) => {
       try {

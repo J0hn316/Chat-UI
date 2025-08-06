@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
 import { useEffect, useState, useRef } from 'react';
 
-import socket from '../utils/socket';
+import { socket } from '../utils/socket';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 import type { ChatMessage } from '../api/chatApi';
@@ -20,6 +20,7 @@ export default function ChatWindow({
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
   const [sending, setSending] = useState(false);
+  const [typingUser, setTypingUser] = useState<string | null>(null);
 
   // Reference to scroll to bottom of chat
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,7 @@ export default function ChatWindow({
   const { user } = useAuth();
   const currentUserId = user?._id;
 
+  // Send message
   const handleSend = async (): Promise<void> => {
     if (!content.trim()) return;
     setSending(true);
@@ -51,6 +53,29 @@ export default function ChatWindow({
     if (parts.length === 1) return parts[0][0].toUpperCase();
     return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
   };
+
+  // Handle Typing
+  const handleInputChange = (
+    evt: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setContent(evt.target.value);
+    if (currentUserId)
+      socket.emit('typing', { to: userId, from: currentUserId });
+  };
+
+  // Listen for typing events
+  useEffect(() => {
+    const handleUserTyping = ({ from }: { from: string }) => {
+      if (from === userId) {
+        setTypingUser(username);
+        setTimeout(() => setTypingUser(null), 3000);
+      }
+    };
+    socket.on('userTyping', handleUserTyping);
+    return () => {
+      socket.off('userTyping', handleUserTyping);
+    };
+  }, [userId, username]);
 
   // Fetch chat history
   useEffect(() => {
@@ -143,6 +168,11 @@ export default function ChatWindow({
             No messages yet. Start the conversation!
           </p>
         )}
+        {typingUser && (
+          <div className="text-xs text-gray-500 dark:text-gray-300 italic mb-2">
+            {typingUser} is typing...
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -150,7 +180,7 @@ export default function ChatWindow({
         <input
           className="flex-1 border px-3 py-2 rounded dark:bg-gray-600"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
         />

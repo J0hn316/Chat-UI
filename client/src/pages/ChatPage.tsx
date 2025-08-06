@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 
-import socket from '../utils/socket';
+import { socket } from '../utils/socket';
 import type { User } from '../types/User';
 import { useAuth } from '../hooks/useAuth';
 import UserList from '../components/UserList';
