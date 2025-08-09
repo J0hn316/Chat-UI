@@ -22,27 +22,35 @@ export const sendMessage = async (
   }
 
   try {
-    const message = await Message.create({
+    const created = await Message.create({
       sender: userId,
       recipient: recipientId,
       content,
     });
 
-    // Populate the sender field so frontend has full user object
-    await message.populate('sender', 'username');
+    const message = await Message.findById(created.id)
+      .populate('sender', 'username')
+      .populate('recipient', 'username')
+      .exec();
 
+    if (!message) {
+      res.status(500).json({ message: 'Failed to build message.' });
+      return;
+    }
+
+    // Respond to sender immediately (so their UI updates)
     res.status(201).json({ message });
 
-    // Emit message using Socket.IO
+    // Emit to the recipient’s room so it appears in real time
     const io = req.app.get('io');
 
     if (io) {
-      io.to(recipientId).emit('newMessage', message);
+      io.to(recipientId).emit('message:new', message);
     } else {
-      console.error('Socket.IO instance not found');
+      console.error('Socket.IO instance not found on app.');
     }
-  } catch (error) {
-    console.error('Send message error:', error);
+  } catch (err) {
+    console.error('Send message error:', err);
     res.status(500).json({ message: 'Failed to send message' });
   }
 };

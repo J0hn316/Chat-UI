@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import type { User } from '../types/User';
 import { AuthContext } from './AuthContextInstance';
+import { joinUserRoom, socket } from '../utils/socket';
 
 export default function AuthProvider({
   children,
@@ -41,6 +42,14 @@ export default function AuthProvider({
 
     fetchUser();
   }, [token]);
+
+  useEffect(() => {
+    if (user?._id) joinUserRoom(user._id);
+
+    socket.on('connect_error', (err) =>
+      console.error('Socket connect_error:', err.message)
+    );
+  }, [user?._id]);
 
   // 🔄 Fetch current user when token exists
   // useEffect(() => {

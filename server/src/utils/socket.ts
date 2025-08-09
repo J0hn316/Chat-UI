@@ -5,9 +5,10 @@ import Message from '../models/messageModel';
 export function setupSocket(server: HttpServer): SocketIOServer {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: 'http://localhost:5173', // 🔁 Adjust if needed
+      origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // 🔁 Adjust if needed
       credentials: true,
     },
+    transports: ['websocket', 'polling'],
   });
 
   io.on('connection', (socket) => {
@@ -15,12 +16,14 @@ export function setupSocket(server: HttpServer): SocketIOServer {
 
     // Join a room based on user ID
     socket.on('join', (userId: string) => {
+      if (!userId) return;
       socket.join(userId);
       console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
     });
 
-    // Typing indicator event
-    socket.on('typing', ({ to, from }) => {
+    // Typing indicator: forward to recipient room
+    socket.on('typing', ({ to, from }: { to: string; from: string }) => {
+      if (!to || !from) return;
       socket.to(to).emit('userTyping', { from });
     });
 

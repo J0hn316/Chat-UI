@@ -68,7 +68,9 @@ export default function ChatWindow({
     const handleUserTyping = ({ from }: { from: string }) => {
       if (from === userId) {
         setTypingUser(username);
-        setTimeout(() => setTypingUser(null), 3000);
+
+        const t = setTimeout(() => setTypingUser(null), 2500);
+        return () => clearTimeout(t);
       }
     };
     socket.on('userTyping', handleUserTyping);
@@ -101,20 +103,22 @@ export default function ChatWindow({
     }
   }, [messages]);
 
-  // Real time updates with socket
+  // Real-time incoming messages
   useEffect(() => {
-    const handleIncomingMessage = (msg: ChatMessage): void => {
-      const isRelevant =
-        msg.sender._id === userId ||
-        msg.recipient._id === currentUserId ||
+    const onNewMessage = (msg: ChatMessage): void => {
+      // Only append if this message belongs to the current conversation
+      const forThisChat =
+        (msg.sender._id === userId && msg.recipient._id === currentUserId) ||
         (msg.sender._id === currentUserId && msg.recipient._id === userId);
 
-      if (isRelevant) setMessages((prev) => [...prev, msg]);
+      if (forThisChat) {
+        setMessages((prev) => [...prev, msg]);
+      }
     };
-    socket.on('newMessage', handleIncomingMessage);
 
+    socket.on('message:new', onNewMessage);
     return () => {
-      socket.off('newMessage', handleIncomingMessage);
+      socket.off('message:new', onNewMessage);
     };
   }, [userId, currentUserId]);
 
