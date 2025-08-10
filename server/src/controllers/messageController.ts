@@ -45,7 +45,7 @@ export const sendMessage = async (
     const io = req.app.get('io');
 
     if (io) {
-      io.to(recipientId).emit('message:new', message);
+      io.to(String(recipientId)).emit('message:new', message);
     } else {
       console.error('Socket.IO instance not found on app.');
     }

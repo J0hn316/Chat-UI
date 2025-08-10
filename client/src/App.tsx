@@ -10,9 +10,9 @@ import Navbar from './components/Navbar';
 import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
-import DashboardPage from './pages/DashboardPage';
-import RegisterPage from './pages/RegisterPage';
 import PageNotFound from './pages/PageNotFound';
+import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
 
 export default function App(): JSX.Element {
   return (

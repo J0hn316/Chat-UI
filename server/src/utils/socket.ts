@@ -14,17 +14,24 @@ export function setupSocket(server: HttpServer): SocketIOServer {
   io.on('connection', (socket) => {
     console.log(`🟢 New client connected: ${socket.id}`);
 
-    // Join a room based on user ID
+    // Client joins its own user room after connect
     socket.on('join', (userId: string) => {
       if (!userId) return;
       socket.join(userId);
       console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
     });
 
-    // Typing indicator: forward to recipient room
+    // --- Typing indicators ---
+    // Forward "typing" to the recipient's room
     socket.on('typing', ({ to, from }: { to: string; from: string }) => {
       if (!to || !from) return;
       socket.to(to).emit('userTyping', { from });
+    });
+
+    // Forward "stopTyping" to the recipient's room
+    socket.on('stopTyping', ({ to, from }: { to: string; from: string }) => {
+      if (!to || !from) return;
+      io.to(to).emit('userStopTyping', { from });
     });
 
     // 💬 Handle sending messages

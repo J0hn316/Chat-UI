@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 
 import { socket } from '../utils/socket';
 import { useAuth } from '../hooks/useAuth';
+import { debounce } from '../utils/debounce';
 import LoadingSpinner from './LoadingSpinner';
 import type { ChatMessage } from '../api/chatApi';
 import { getMessagesWithUser, sendMessage } from '../api/chatApi';
@@ -16,10 +17,10 @@ export default function ChatWindow({
   userId,
   username,
 }: ChatWindowProps): JSX.Element {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [content, setContent] = useState('');
-  const [loading, setLoading] = useState<boolean>(true);
   const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [typingUser, setTypingUser] = useState<string | null>(null);
 
   // Reference to scroll to bottom of chat
@@ -28,15 +29,40 @@ export default function ChatWindow({
   const { user } = useAuth();
   const currentUserId = user?._id;
 
+  // --- helpers --------------------------------------------------------------
+  const getInitials = (name: string): string => {
+    const parts = name.trim().split(/[\s_-]+/);
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
+  };
+
+  const emitTyping = (to: string, from: string): void => {
+    socket.emit('typing', { to, from });
+  };
+
+  const emitStopTyping = (to: string, from: string): void => {
+    socket.emit('stopTyping', { to, from });
+  };
+
+  const debouncedStopTyping = useRef(
+    debounce((to: string, from: string) => {
+      emitStopTyping(to, from);
+    }, 1000)
+  ).current;
+
+  // --- send & input handlers ------------------------------------------------
+
   // Send message
   const handleSend = async (): Promise<void> => {
-    if (!content.trim()) return;
+    if (!content.trim() || !currentUserId) return;
     setSending(true);
 
     try {
       const newMessage = await sendMessage(userId, content);
       setMessages((prev) => [...prev, newMessage]);
       setContent('');
+
+      emitStopTyping(userId, currentUserId);
     } catch (err) {
       console.error('Failed to send message:', err);
     } finally {
@@ -48,52 +74,75 @@ export default function ChatWindow({
     if (e.key === 'Enter') handleSend();
   };
 
-  const getInitials = (name: string): string => {
-    const parts = name.trim().split(/[\s_-]+/);
-    if (parts.length === 1) return parts[0][0].toUpperCase();
-    return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
-  };
-
   // Handle Typing
+  // when input changes, emit typing & schedule stop
   const handleInputChange = (
     evt: React.ChangeEvent<HTMLInputElement>
   ): void => {
     setContent(evt.target.value);
-    if (currentUserId)
-      socket.emit('typing', { to: userId, from: currentUserId });
+    if (!currentUserId) return;
+
+    emitTyping(userId, currentUserId);
+    debouncedStopTyping(userId, currentUserId);
   };
+
+  // --- effects --------------------------------------------------------------
 
   // Listen for typing events
   useEffect(() => {
-    const handleUserTyping = ({ from }: { from: string }) => {
-      if (from === userId) {
-        setTypingUser(username);
+    const onTyping = ({ from }: { from: string }) => {
+      if (from === userId) setTypingUser(username);
+    };
 
-        const t = setTimeout(() => setTypingUser(null), 2500);
-        return () => clearTimeout(t);
+    const onStopTyping = ({ from }: { from: string }) => {
+      if (from === userId) setTypingUser(null);
+    };
+
+    socket.on('userTyping', onTyping);
+    socket.off('userStopTyping', onStopTyping);
+
+    // fallback auto-clear after 3s (missed stop event)
+    let fallback: ReturnType<typeof setTimeout> | null = null;
+
+    // Remove user is typing message
+    const clearWithFallback = () => {
+      if (fallback) clearTimeout(fallback);
+      if (typingUser) {
+        fallback = setTimeout(() => setTypingUser(null), 3000);
       }
     };
-    socket.on('userTyping', handleUserTyping);
-    return () => {
-      socket.off('userTyping', handleUserTyping);
+
+    const unsub = () => {
+      socket.off('userTyping', onTyping);
+      socket.off('userStopTyping', onStopTyping);
+      if (fallback) clearTimeout(fallback);
     };
-  }, [userId, username]);
+
+    // re-run fallback whenever flag changes
+    clearWithFallback();
+    return unsub;
+  }, [userId, username, typingUser]);
 
   // Fetch chat history
   useEffect(() => {
+    let mounted = true;
+
     const loadingMessages = async (): Promise<void> => {
       setLoading(true);
-
       try {
         const data = await getMessagesWithUser(userId);
-        setMessages(data);
+        if (mounted) setMessages(data);
       } catch (error) {
         console.error('Failed to load messages:', error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
+
     loadingMessages();
+    return () => {
+      mounted = false;
+    };
   }, [userId]);
 
   // Scroll to bottom on new message
