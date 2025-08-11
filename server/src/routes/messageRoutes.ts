@@ -4,6 +4,7 @@ import { authMiddleware } from '../middleware/authMiddleware';
 import {
   sendMessage,
   getMessagesWithUser,
+  markedReadMessages,
 } from '../controllers/messageController';
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router.post('/', sendMessage);
 
 // GET /api/messages/:userId — get messages with a specific user
 router.get('/:userId', getMessagesWithUser);
+
+router.post('/mark-read', markedReadMessages);
 
 export default router;

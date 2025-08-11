@@ -6,7 +6,11 @@ import { useAuth } from '../hooks/useAuth';
 import { debounce } from '../utils/debounce';
 import LoadingSpinner from './LoadingSpinner';
 import type { ChatMessage } from '../api/chatApi';
-import { getMessagesWithUser, sendMessage } from '../api/chatApi';
+import {
+  getMessagesWithUser,
+  sendMessage,
+  markMessagesRead,
+} from '../api/chatApi';
 
 interface ChatWindowProps {
   userId: string;
@@ -132,6 +136,12 @@ export default function ChatWindow({
       try {
         const data = await getMessagesWithUser(userId);
         if (mounted) setMessages(data);
+
+        // Immediately mark any unread messages (from other user → me) as read
+        // Small delay avoids back-to-back network thrash, purely optional
+        setTimeout(() => {
+          void markMessagesRead(userId);
+        }, 150);
       } catch (error) {
         console.error('Failed to load messages:', error);
       } finally {
@@ -160,9 +170,11 @@ export default function ChatWindow({
         (msg.sender._id === userId && msg.recipient._id === currentUserId) ||
         (msg.sender._id === currentUserId && msg.recipient._id === userId);
 
-      if (forThisChat) {
-        setMessages((prev) => [...prev, msg]);
-      }
+      if (forThisChat) setMessages((prev) => [...prev, msg]);
+
+      // If it's addressed to me, mark it read immediately
+      if (msg.recipient._id === currentUserId && !msg.readAt)
+        void markMessagesRead(userId);
     };
 
     socket.on('message:new', onNewMessage);
@@ -171,6 +183,30 @@ export default function ChatWindow({
     };
   }, [userId, currentUserId]);
 
+  // listen once the chat is mounted or user/convo changes
+  useEffect(() => {
+    const onRead = (payload: {
+      messageIds: string[];
+      readerId: string;
+    }): void => {
+      // Only matters if the reader is the person you're chatting with
+      if (payload.readerId !== userId) return;
+
+      setMessages((prev) =>
+        prev.map((m) =>
+          payload.messageIds.includes(m._id)
+            ? { ...m, readAt: new Date().toISOString() }
+            : m
+        )
+      );
+    };
+    socket.on('message:read', onRead);
+    return () => {
+      socket.off('message:read', onRead);
+    };
+  }, [userId]);
+
+  // --- UI --------------------------------------------------------------
   return (
     <div className="flex flex-col min-h-[80vh] h-full w-full p-4 bg-white dark:bg-gray-800 rounded">
       <h2 className="text-xl font-semibold mb-4 text-blue-500">
@@ -209,9 +245,26 @@ export default function ChatWindow({
                       : msg.sender.username || 'Unknown'}
                   </span>
                   <span className="block">{msg.content}</span>
-                  <span className="block text-xs text-black dark:text-gray-300 mt-1 text-right">
-                    {new Date(msg.createdAt).toLocaleString()}
-                  </span>
+                  <div className="text-sm text-gray-200 flex items-center mt-1">
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                    {isSent && (
+                      <span
+                        className={`ml-2 text-xs ${
+                          msg.readAt ? 'text-blue-200' : 'text-blue-300'
+                        }`}
+                        title={
+                          msg.readAt
+                            ? `Read ${new Date(msg.readAt).toLocaleString()}`
+                            : 'Sent'
+                        }
+                      >
+                        {msg.readAt ? '✅✅' : '✅'}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );

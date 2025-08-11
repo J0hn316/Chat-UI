@@ -85,3 +85,54 @@ export const getMessagesWithUser = async (
     res.status(500).json({ message: 'Failed to retrieve messages' });
   }
 };
+
+export const markedReadMessages = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const userId = req.userId;
+  const { otherUserId } = req.body as { otherUserId: string };
+
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+  if (!otherUserId) {
+    res.status(400).json({ message: 'otherUserId is required' });
+    return;
+  }
+
+  try {
+    // find all unread messages sender=otherUserId -> recipient=userId
+    const unread = await Message.find({
+      sender: otherUserId,
+      recipient: userId,
+      readAt: null,
+    }).select('_id');
+
+    if (unread.length === 0) {
+      res.status(200).json({ updatedIds: [] });
+      return;
+    }
+
+    const ids = unread.map((m) => m._id);
+    await Message.updateMany(
+      { _id: { $in: ids } },
+      { $set: { readAt: new Date() } }
+    );
+
+    const io = req.app.get('io');
+
+    if (io) {
+      io.to(otherUserId).emit('message:read', {
+        messageIds: ids.map(String),
+        readerId: String(userId),
+      });
+    }
+
+    res.status(200).json({ updatedIds: ids.map(String) });
+  } catch (err) {
+    console.error('markMessagesRead error:', err);
+    res.status(500).json({ message: 'Failed to mark messages as read' });
+  }
+};

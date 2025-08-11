@@ -1,11 +1,14 @@
 import api from '../utils/api';
 
+export type ChatUserRef = { _id: string; username: string };
+
 export type ChatMessage = {
   _id: string;
-  sender: { _id: string; username: string };
-  recipient: { _id: string; username: string };
+  sender: ChatUserRef;
+  recipient: ChatUserRef;
   content: string;
   createdAt: string;
+  readAt: string | null;
 };
 
 export async function sendMessage(
@@ -13,12 +16,18 @@ export async function sendMessage(
   content: string
 ): Promise<ChatMessage> {
   const res = await api.post('/messages', { recipientId, content });
-  return res.data.message;
+  return res.data.message as ChatMessage;
 }
 
 export async function getMessagesWithUser(
   otherUserId: string
 ): Promise<ChatMessage[]> {
   const res = await api.get(`/messages/${otherUserId}`);
-  return res.data.messages;
+  return res.data.messages as ChatMessage[];
+}
+
+// Mark all messages from otherUserId → me as read
+export async function markMessagesRead(otherUserId: string): Promise<string[]> {
+  const res = await api.post('/messages/mark-read', { otherUserId });
+  return res.data.updatedIds as string[];
 }
