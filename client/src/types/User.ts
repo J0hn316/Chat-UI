@@ -3,4 +3,6 @@ export interface User {
   username: string;
   email: string;
   createdAt: string;
+  isOnline?: boolean;
+  lastSeen?: string | null;
 }

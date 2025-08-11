@@ -1,4 +1,5 @@
 import { Response } from 'express';
+
 import UserModel from '../models/User';
 import { AuthenticatedRequest } from '../types/AuthenticatedRequest';
 
@@ -32,13 +33,41 @@ export async function getAllUsers(
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
-  const userId = req.userId;
+  const currentUserId = req.userId;
 
   try {
-    const users = await UserModel.find({ _id: { $ne: userId } }).select(
-      '_id username email createdAt'
-    );
-    res.status(200).json({ users });
+    // Fetch everyone except the current user
+    const users = await UserModel.find(
+      currentUserId ? { _id: { $ne: currentUserId } } : {}
+    )
+      .select('_id username email createdAt')
+      .lean();
+
+    // Read presence map from Socket.IO (set in setupSocket)
+    const io = req.app.get('io') as
+      | {
+          presence?: Map<
+            string,
+            { sockets: Set<string>; lastSeen?: Date | null }
+          >;
+        }
+      | undefined;
+
+    const presence =
+      io?.presence ??
+      new Map<string, { sockets: Set<string>; lastSeen?: Date | null }>();
+
+    const enriched = users.map((u) => {
+      const entry = presence.get(String(u._id));
+      const isOnline = !!entry && entry.sockets.size > 0;
+      return {
+        ...u,
+        isOnline,
+        lastSeen: isOnline ? null : entry?.lastSeen?.toISOString() ?? null,
+      };
+    });
+
+    res.status(200).json({ users: enriched });
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Internal server error' });

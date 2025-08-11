@@ -94,38 +94,34 @@ export default function ChatWindow({
 
   // Listen for typing events
   useEffect(() => {
-    const onTyping = ({ from }: { from: string }) => {
-      if (from === userId) setTypingUser(username);
-    };
-
-    const onStopTyping = ({ from }: { from: string }) => {
-      if (from === userId) setTypingUser(null);
-    };
-
-    socket.on('userTyping', onTyping);
-    socket.off('userStopTyping', onStopTyping);
-
     // fallback auto-clear after 3s (missed stop event)
     let fallback: ReturnType<typeof setTimeout> | null = null;
 
-    // Remove user is typing message
-    const clearWithFallback = () => {
+    const onTyping = ({ from }: { from: string }) => {
+      if (from !== userId) return;
+      setTypingUser(username);
       if (fallback) clearTimeout(fallback);
-      if (typingUser) {
-        fallback = setTimeout(() => setTypingUser(null), 3000);
+      fallback = setTimeout(() => setTypingUser(null), 3000);
+    };
+
+    const onStopTyping = ({ from }: { from: string }) => {
+      if (from !== userId) return;
+      setTypingUser(null);
+      if (fallback) {
+        clearTimeout(fallback);
+        fallback = null;
       }
     };
 
-    const unsub = () => {
+    socket.on('userTyping', onTyping);
+    socket.on('userStopTyping', onStopTyping);
+
+    return () => {
       socket.off('userTyping', onTyping);
       socket.off('userStopTyping', onStopTyping);
       if (fallback) clearTimeout(fallback);
     };
-
-    // re-run fallback whenever flag changes
-    clearWithFallback();
-    return unsub;
-  }, [userId, username, typingUser]);
+  }, [userId, username]);
 
   // Fetch chat history
   useEffect(() => {
@@ -165,6 +161,8 @@ export default function ChatWindow({
   // Real-time incoming messages
   useEffect(() => {
     const onNewMessage = (msg: ChatMessage): void => {
+      if (!currentUserId) return;
+
       // Only append if this message belongs to the current conversation
       const forThisChat =
         (msg.sender._id === userId && msg.recipient._id === currentUserId) ||
