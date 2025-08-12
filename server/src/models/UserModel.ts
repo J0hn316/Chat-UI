@@ -6,15 +6,19 @@ export interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
-  passwordConfirmation: string;
   createdAt?: Date;
   updatedAt?: Date;
+  lastSeen?: Date | null;
   comparePassword(password: string): Promise<boolean>;
 }
 
 const UserSchema = new Schema<UserDocument>(
   {
-    username: { type: String, required: true, trim: true },
+    username: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -22,12 +26,15 @@ const UserSchema = new Schema<UserDocument>(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true, minlength: 6, trim: true },
-    passwordConfirmation: {
+    password: {
       type: String,
       required: true,
       minlength: 6,
       trim: true,
+    },
+    lastSeen: {
+      type: Date,
+      default: null,
     },
   },
   {
@@ -41,9 +48,6 @@ UserSchema.pre('save', async function (next): Promise<void> {
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-
-  // Ensure password confirmation matches the hashed password
-  this.passwordConfirmation = this.password;
   next();
 });
 

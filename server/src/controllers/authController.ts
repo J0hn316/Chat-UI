@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import UserModel, { UserDocument } from '../models/User';
+import UserModel, { UserDocument } from '../models/UserModel';
 import generateToken from '../utils/generateToken';
 
 // Register a new user

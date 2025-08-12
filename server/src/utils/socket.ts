@@ -2,6 +2,7 @@ import type { Server as HttpServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
 import Message from '../models/messageModel';
+import UserModel from '../models/UserModel';
 
 type Presence = {
   sockets: Set<string>; // sockets for that user
@@ -9,6 +10,8 @@ type Presence = {
 };
 
 const presence = new Map<string, Presence>();
+const presenceTimers = new Map<string, NodeJS.Timeout>(); // 👈 pending offline timers
+const OFFLINE_GRACE_MS = 5000; // 👈 5s grace
 
 export function setupSocket(server: HttpServer): SocketIOServer {
   const io = new SocketIOServer(server, {
@@ -29,6 +32,13 @@ export function setupSocket(server: HttpServer): SocketIOServer {
 
       currentUserId = userId;
       socket.join(userId);
+
+      // 🔄 if there was a pending "go offline", cancel it
+      const pending = presenceTimers.get(userId);
+      if (pending) {
+        clearTimeout(pending);
+        presenceTimers.delete(userId);
+      }
       console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
 
       // Mark online
@@ -66,6 +76,7 @@ export function setupSocket(server: HttpServer): SocketIOServer {
           recipient: recipientId,
           content,
         });
+
         await newMessage.save();
         await newMessage.populate('sender', 'username');
         await newMessage.populate('recipient', 'username');
@@ -88,13 +99,29 @@ export function setupSocket(server: HttpServer): SocketIOServer {
       entry.sockets.delete(socket.id);
 
       if (entry.sockets.size === 0) {
-        // user fully offline
-        entry.lastSeen = new Date();
-        presence.set(currentUserId, entry);
-        io.emit('presence:offline', {
-          userId: currentUserId,
-          lastSeen: entry.lastSeen?.toISOString() ?? null,
-        });
+        // 🚦 start grace timer; if user doesn’t rejoin in time, mark offline
+        const timer = setTimeout(async () => {
+          const now = new Date();
+          entry.lastSeen = now;
+          presence.set(currentUserId!, entry);
+          presenceTimers.delete(currentUserId!);
+
+          try {
+            await UserModel.updateOne(
+              { _id: currentUserId },
+              { $set: { lastSeen: now } }
+            ).exec();
+          } catch (err) {
+            console.error('Failed to persist lastSeen:', err);
+          }
+
+          io.emit('presence:offline', {
+            userId: currentUserId,
+            lastSeen: now.toISOString(),
+          });
+        }, OFFLINE_GRACE_MS);
+
+        presenceTimers.set(currentUserId, timer);
       }
       console.log(`🔴 Client disconnected: ${socket.id}`);
     });

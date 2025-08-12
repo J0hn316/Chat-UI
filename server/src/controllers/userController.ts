@@ -1,6 +1,6 @@
 import { Response } from 'express';
 
-import UserModel from '../models/User';
+import UserModel from '../models/UserModel';
 import { AuthenticatedRequest } from '../types/AuthenticatedRequest';
 
 // ✅ Get current logged-in user
@@ -40,7 +40,7 @@ export async function getAllUsers(
     const users = await UserModel.find(
       currentUserId ? { _id: { $ne: currentUserId } } : {}
     )
-      .select('_id username email createdAt')
+      .select('_id username email createdAt lastSeen')
       .lean();
 
     // Read presence map from Socket.IO (set in setupSocket)
@@ -60,10 +60,12 @@ export async function getAllUsers(
     const enriched = users.map((u) => {
       const entry = presence.get(String(u._id));
       const isOnline = !!entry && entry.sockets.size > 0;
+      const lastSeen = isOnline ? null : u.lastSeen ?? entry?.lastSeen ?? null;
+
       return {
         ...u,
         isOnline,
-        lastSeen: isOnline ? null : entry?.lastSeen?.toISOString() ?? null,
+        lastSeen: lastSeen ? new Date(lastSeen).toISOString() : null,
       };
     });
 
