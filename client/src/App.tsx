@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import AppLayout from './layouts/AppLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
+import PresenceProvider from './context/PresenceContext';
 
 import Navbar from './components/Navbar';
 
@@ -30,7 +31,9 @@ export default function App(): JSX.Element {
           path="/"
           element={
             <ProtectedRoute>
-              <AppLayout />
+              <PresenceProvider>
+                <AppLayout />
+              </PresenceProvider>
             </ProtectedRoute>
           }
         >
