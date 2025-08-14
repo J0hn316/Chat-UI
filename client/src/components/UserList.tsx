@@ -18,19 +18,18 @@ export default function UserList({
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="w-1/3 border-r h-full overflow-y-auto bg-gray-100 dark:bg-gray-700 p-4">
+    <div className="w-1/2 h-full overflow-y-auto bg-gray-100 dark:bg-gray-700 p-4">
       <h3 className="font-bold mb-4 text-blue-500">Users</h3>
       {users.map((user) => (
         <div
           key={user._id}
           onClick={() => onSelectUser(user)}
-          className={`p-2 rounded cursor-pointer flex items-center justify-between ${
+          className={`p-2 rounded cursor-pointer flex items-center ${
             selectedUserId === user._id
               ? 'bg-blue-300 dark:bg-blue-600 text-white'
               : 'hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
         >
-          <span>{user.username}</span>
           <span
             className={`ml-2 h-2 w-2 rounded-full ${
               user.isOnline ? 'bg-green-500' : 'bg-gray-400'
@@ -43,6 +42,7 @@ export default function UserList({
                 : 'Offline'
             }
           />
+          <span className="pl-3">{user.username}</span>
         </div>
       ))}
     </div>

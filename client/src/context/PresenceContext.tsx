@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 import { socket } from '../utils/socket';
 import { getUsers } from '../api/userApi';
@@ -18,8 +18,7 @@ export default function PresenceProvider({
   const { user, token } = useAuth();
 
   // initial fetch + manual refresh
-  const refresh = async (): Promise<void> => {
-    // 🚫 not logged in -> don't call the API
+  const refresh = useCallback(async (): Promise<void> => {
     if (!token) {
       setUsers([]);
       setLoading(false);
@@ -27,16 +26,16 @@ export default function PresenceProvider({
     }
     setLoading(true);
     try {
-      const data = await getUsers(); // returns presence-enriched users
+      const data = await getUsers();
       setUsers(data);
     } catch (err) {
       console.error('Presence refresh failed:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  useEffect(() => void refresh(), []);
+  useEffect(() => void refresh(), [refresh]);
 
   // join your personal room on connect and on reconnect
   useEffect(() => {

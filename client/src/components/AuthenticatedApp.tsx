@@ -7,9 +7,7 @@ import LoadingSpinner from './LoadingSpinner';
 export default function AuthenticatedApp(): JSX.Element {
   const { isLoading } = useAuth();
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+  if (isLoading) return <LoadingSpinner />;
 
   return <App />;
 }

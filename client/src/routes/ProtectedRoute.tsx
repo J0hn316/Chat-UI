@@ -10,7 +10,6 @@ export default function ProtectedRoute({
 }): JSX.Element {
   const { user, isLoading } = useAuth();
 
-  // If loading, show spinner
   if (isLoading) return <LoadingSpinner />;
 
   return user ? children : <Navigate to="/login" replace />;

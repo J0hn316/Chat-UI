@@ -20,9 +20,9 @@ export default function ChatPage(): JSX.Element {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white flex">
+    <div className="min-h-screen flex bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* User list sidebar */}
-      <div className="w-1/3 border-r border-gray-300 dark:border-gray-700 p-4">
+      <div className="w-1/3 p-4 border-r border-gray-300 dark:border-gray-700">
         <UserList
           onSelectUser={setSelectedUser}
           selectedUserId={selectedUser?._id ?? null}
