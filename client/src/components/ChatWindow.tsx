@@ -6,16 +6,26 @@ import { useAuth } from '../hooks/useAuth';
 import { debounce } from '../utils/debounce';
 import LoadingSpinner from './LoadingSpinner';
 import type { ChatMessage } from '../api/chatApi';
+
+import {
+  myReactionSet,
+  countReactions,
+  togglerReactionLocal,
+} from '../utils/reactions';
+
 import {
   getMessagesWithUser,
   sendMessage,
   markMessagesRead,
+  toggleMessageReaction,
 } from '../api/chatApi';
 
 interface ChatWindowProps {
   userId: string;
   username: string;
 }
+
+const REACTIONS = ['👍', '❤️', '😂', '🎉', '😮', '😢'];
 
 export default function ChatWindow({
   userId,
@@ -31,7 +41,7 @@ export default function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuth();
-  const currentUserId = user?._id;
+  const currentUserId = user?._id ?? '';
 
   // --- helpers --------------------------------------------------------------
   const getInitials = (name: string): string => {
@@ -78,7 +88,6 @@ export default function ChatWindow({
     if (e.key === 'Enter') handleSend();
   };
 
-  // Handle Typing
   // when input changes, emit typing & schedule stop
   const handleInputChange = (
     evt: React.ChangeEvent<HTMLInputElement>
@@ -88,6 +97,32 @@ export default function ChatWindow({
 
     emitTyping(userId, currentUserId);
     debouncedStopTyping(userId, currentUserId);
+  };
+
+  const onToggleReaction = async (
+    msgId: string,
+    emoji: string
+  ): Promise<void> => {
+    if (!currentUserId) return;
+
+    // optimistic update
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg._id === msgId
+          ? togglerReactionLocal(msg, currentUserId, emoji)
+          : msg
+      )
+    );
+
+    try {
+      const updated = await toggleMessageReaction(msgId, emoji);
+      // replace with server's canonical version
+      setMessages((prev) =>
+        prev.map((msg) => (msg._id === updated._id ? updated : msg))
+      );
+    } catch (err) {
+      console.error('Toggle reaction failed:', err);
+    }
   };
 
   // --- effects --------------------------------------------------------------
@@ -133,8 +168,7 @@ export default function ChatWindow({
         const data = await getMessagesWithUser(userId);
         if (mounted) setMessages(data);
 
-        // Immediately mark any unread messages (from other user → me) as read
-        // Small delay avoids back-to-back network thrash, purely optional
+        // Small delay avoids back-to-back network thrash
         setTimeout(() => {
           void markMessagesRead(userId);
         }, 150);
@@ -145,7 +179,7 @@ export default function ChatWindow({
       }
     };
 
-    loadingMessages();
+    void loadingMessages();
     return () => {
       mounted = false;
     };
@@ -181,20 +215,23 @@ export default function ChatWindow({
     };
   }, [userId, currentUserId]);
 
-  // listen once the chat is mounted or user/convo changes
+  // live read receipts
   useEffect(() => {
-    const onRead = (payload: {
+    const onRead = ({
+      messageIds,
+      readerId,
+    }: {
       messageIds: string[];
       readerId: string;
     }): void => {
-      // Only matters if the reader is the person you're chatting with
-      if (payload.readerId !== userId) return;
+      // Only matters if other side read them
+      if (readerId !== userId) return;
 
       setMessages((prev) =>
-        prev.map((m) =>
-          payload.messageIds.includes(m._id)
-            ? { ...m, readAt: new Date().toISOString() }
-            : m
+        prev.map((msg) =>
+          messageIds.includes(msg._id)
+            ? { ...msg, readAt: new Date().toISOString() }
+            : msg
         )
       );
     };
@@ -203,6 +240,28 @@ export default function ChatWindow({
       socket.off('message:read', onRead);
     };
   }, [userId]);
+
+  // Socket real-time reaction updates
+  useEffect(() => {
+    const onReaction = ({ message }: { message: ChatMessage }) => {
+      // Only update if the message belongs to this conversation
+      const sameThread =
+        (message.sender._id === userId &&
+          message.recipient._id === currentUserId) ||
+        (message.sender._id === currentUserId &&
+          message.recipient._id === userId);
+
+      if (!sameThread) return;
+
+      setMessages((prev) =>
+        prev.map((msg) => (msg._id === message._id ? message : msg))
+      );
+    };
+    socket.on('message:reaction', onReaction);
+    return () => {
+      socket.off('message:reaction', onReaction);
+    };
+  }, [userId, currentUserId]);
 
   // --- UI --------------------------------------------------------------
   return (
@@ -214,9 +273,11 @@ export default function ChatWindow({
       <div className="flex-1 overflow-y-auto border p-3 rounded bg-gray-100 dark:bg-gray-700 mb-3 space-y-2">
         {loading ? (
           <LoadingSpinner />
-        ) : messages.length > 0 ? (
+        ) : messages.length ? (
           messages.map((msg) => {
             const isSent = msg.sender._id === currentUserId;
+            const counts = countReactions(msg.reactions);
+            const mine = myReactionSet(msg.reactions, currentUserId);
 
             return (
               <div
@@ -230,6 +291,7 @@ export default function ChatWindow({
                     {getInitials(msg.sender.username)}
                   </div>
                 )}
+
                 <div
                   className={`p-3 rounded-lg shadow max-w-[80%] sm:max-w-sm text-sm transition-all duration-200 ease-in transform ${
                     isSent
@@ -242,12 +304,15 @@ export default function ChatWindow({
                       ? 'You'
                       : msg.sender.username || 'Unknown'}
                   </span>
+
                   <span className="block">{msg.content}</span>
+
                   <div className="text-sm text-gray-200 flex items-center mt-1">
                     {new Date(msg.createdAt).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
+
                     {isSent && (
                       <span
                         className={`ml-2 text-xs ${
@@ -262,6 +327,39 @@ export default function ChatWindow({
                         {msg.readAt ? '✅✅' : '✅'}
                       </span>
                     )}
+                  </div>
+
+                  {/* Reactions */}
+                  <div className="mt-2 flex flex-wrap items-center gap-1">
+                    {/* Existing reaction chips (click to toggle mine) */}
+                    {Object.entries(counts).map(([emoji, count]) => (
+                      <button
+                        key={emoji}
+                        title="Toggle reaction"
+                        onClick={() => void onToggleReaction(msg._id, emoji)}
+                        className={`px-2 py-0.5 rounded-full text-xs ${
+                          mine.has(emoji)
+                            ? 'bg-blue-200 text-blue-900'
+                            : 'bg-white/70 dark:bg-black/20'
+                        }`}
+                      >
+                        {emoji} {count > 1 ? count : ''}
+                      </button>
+                    ))}
+
+                    {/* Add new reaction quick-palette */}
+                    <div className="flex ml-1 gap-1">
+                      {REACTIONS.map((emoji) => (
+                        <button
+                          key={emoji}
+                          title={`React ${emoji}`}
+                          onClick={() => void onToggleReaction(msg._id, emoji)}
+                          className="px-2 py-0.5 rounded-full text-xs bg-white/60 hover:bg-white/80 dark:bg-black/30"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

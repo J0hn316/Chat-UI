@@ -5,6 +5,7 @@ import {
   sendMessage,
   getMessagesWithUser,
   markedReadMessages,
+  toggleReaction,
 } from '../controllers/messageController';
 
 const router = express.Router();
@@ -19,5 +20,8 @@ router.post('/', sendMessage);
 router.get('/:userId', getMessagesWithUser);
 
 router.post('/mark-read', markedReadMessages);
+
+// toggle reaction
+router.post('/:id/reactions', toggleReaction);
 
 export default router;

@@ -1,6 +1,10 @@
 import api from '../utils/api';
 
 export type ChatUserRef = { _id: string; username: string };
+export type Reaction = {
+  user: { _id: string; username?: string } | string;
+  emoji: string;
+};
 
 export type ChatMessage = {
   _id: string;
@@ -9,6 +13,7 @@ export type ChatMessage = {
   content: string;
   createdAt: string;
   readAt: string | null;
+  reactions?: Reaction[];
 };
 
 export async function sendMessage(
@@ -30,4 +35,12 @@ export async function getMessagesWithUser(
 export async function markMessagesRead(otherUserId: string): Promise<string[]> {
   const res = await api.post('/messages/mark-read', { otherUserId });
   return res.data.updatedIds as string[];
+}
+
+export async function toggleMessageReaction(
+  messageId: string,
+  emoji: string
+): Promise<ChatMessage> {
+  const res = await api.post(`/messages/${messageId}/reactions`, { emoji });
+  return res.data.message;
 }

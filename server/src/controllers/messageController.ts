@@ -136,3 +136,69 @@ export const markedReadMessages = async (
     res.status(500).json({ message: 'Failed to mark messages as read' });
   }
 };
+
+export const toggleReaction = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const { id: messageId } = req.params;
+  const { emoji } = req.body as { emoji?: string };
+  const userId = req.userId;
+
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+
+  if (!emoji) {
+    res.status(400).json({ message: 'Emoji is required' });
+    return;
+  }
+
+  try {
+    const msg = await Message.findById(messageId)
+      .populate('sender', 'username')
+      .populate('recipient', 'username');
+
+    if (!msg) {
+      res.status(404).json({ message: 'Message not found' });
+      return;
+    }
+
+    const msgExist = msg.reactions.find(
+      (reaction) =>
+        String(reaction.user) === String(userId) && reaction.emoji === emoji
+    );
+
+    if (msgExist) {
+      // Remove
+      msg.reactions = msg.reactions.filter(
+        (reaction) =>
+          !(
+            String(reaction.user) === String(userId) && reaction.emoji === emoji
+          )
+      );
+    } else {
+      // Add
+      msg.reactions.push({
+        user: msg.sender.equals(userId) ? msg.sender : (userId as any),
+        emoji,
+      });
+    }
+
+    await msg.save();
+
+    res.status(200).json({ message: msg });
+
+    const io = req.app.get('io');
+
+    if (io) {
+      // notify both parties in real-time
+      io.to(String(msg.sender)).emit('message:reaction', { message: msg });
+      io.to(String(msg.recipient)).emit('message:reaction', { message: msg });
+    }
+  } catch (err) {
+    console.error('toggleReaction error:', err);
+    res.status(500).json({ message: 'Failed to toggle reaction' });
+  }
+};
