@@ -13,7 +13,7 @@ const presence = new Map<string, Presence>();
 const presenceTimers = new Map<string, NodeJS.Timeout>(); // 👈 pending offline timers
 const OFFLINE_GRACE_MS = 5000; // 👈 5s grace
 
-export function setupSocket(server: HttpServer): SocketIOServer {
+export const setupSocket = (server: HttpServer): SocketIOServer => {
   const io = new SocketIOServer(server, {
     cors: {
       origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // 🔁 Adjust if needed
@@ -131,4 +131,4 @@ export function setupSocket(server: HttpServer): SocketIOServer {
   (io as any).presence = presence;
 
   return io;
-}
+};

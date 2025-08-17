@@ -4,7 +4,10 @@ import UserModel, { UserDocument } from '../models/UserModel';
 import generateToken from '../utils/generateToken';
 
 // Register a new user
-export async function registerUser(req: Request, res: Response): Promise<void> {
+export const registerUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { username, email, password } = req.body;
     const existingUser = await UserModel.findOne({ email });
@@ -38,10 +41,10 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
 // Login an existing user
-export async function loginUser(req: Request, res: Response): Promise<void> {
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body as { email: string; password: string };
     const user = await UserModel.findOne({ email });
@@ -69,4 +72,4 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
     console.error('Error logging in user:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};

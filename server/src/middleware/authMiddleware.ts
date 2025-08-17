@@ -4,11 +4,11 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET_TYPED } from '../utils/config';
 import { AuthenticatedRequest } from '../types/AuthenticatedRequest';
 
-export function authMiddleware(
+export const authMiddleware = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void {
+): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -26,4 +26,4 @@ export function authMiddleware(
     console.error('Token verification failed:', error);
     res.status(401).json({ message: 'Invalid or expired token' });
   }
-}
+};

@@ -4,10 +4,10 @@ import UserModel from '../models/UserModel';
 import { AuthenticatedRequest } from '../types/AuthenticatedRequest';
 
 // ✅ Get current logged-in user
-export async function getCurrentUser(
+export const getCurrentUser = async (
   req: AuthenticatedRequest,
   res: Response
-): Promise<void> {
+): Promise<void> => {
   try {
     const userId = req.userId;
     if (!userId) {
@@ -26,13 +26,13 @@ export async function getCurrentUser(
     console.error('Error fetching user:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
 // Get all users
-export async function getAllUsers(
+export const getAllUsers = async (
   req: AuthenticatedRequest,
   res: Response
-): Promise<void> {
+): Promise<void> => {
   const currentUserId = req.userId;
 
   try {
@@ -74,4 +74,4 @@ export async function getAllUsers(
     console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
