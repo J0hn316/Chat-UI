@@ -6,7 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 
-export default function LoginPage(): JSX.Element {
+const LoginPage = (): JSX.Element => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | null>('');
@@ -84,4 +84,6 @@ export default function LoginPage(): JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;

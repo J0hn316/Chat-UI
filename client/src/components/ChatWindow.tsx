@@ -27,14 +27,12 @@ interface ChatWindowProps {
 
 const REACTIONS = ['👍', '❤️', '😂', '🎉', '😮', '😢'];
 
-export default function ChatWindow({
-  userId,
-  username,
-}: ChatWindowProps): JSX.Element {
+const ChatWindow = ({ userId, username }: ChatWindowProps): JSX.Element => {
   const [content, setContent] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [pickerFor, SetPickerFor] = useState<string | null>(null);
   const [typingUser, setTypingUser] = useState<string | null>(null);
 
   // Reference to scroll to bottom of chat
@@ -42,6 +40,9 @@ export default function ChatWindow({
 
   const { user } = useAuth();
   const currentUserId = user?._id ?? '';
+
+  // Close the picker (used on Esc / blur / click outside)
+  const closePicker = () => SetPickerFor(null);
 
   // --- helpers --------------------------------------------------------------
   const getInitials = (name: string): string => {
@@ -63,6 +64,9 @@ export default function ChatWindow({
       emitStopTyping(to, from);
     }, 1000)
   ).current;
+
+  const openPickerFor = (msgId: string) =>
+    SetPickerFor((curr) => (curr === msgId ? null : msgId));
 
   // --- send & input handlers ------------------------------------------------
 
@@ -263,6 +267,14 @@ export default function ChatWindow({
     };
   }, [userId, currentUserId]);
 
+  useEffect(() => {
+    const onKey = (evt: KeyboardEvent) => {
+      if (evt.key === 'Escape') closePicker();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   // --- UI --------------------------------------------------------------
   return (
     <div className="flex flex-col min-h-[80vh] h-full w-full p-4 bg-white dark:bg-gray-800 rounded">
@@ -346,20 +358,44 @@ export default function ChatWindow({
                         {emoji} {count > 1 ? count : ''}
                       </button>
                     ))}
-
-                    {/* Add new reaction quick-palette */}
-                    <div className="flex ml-1 gap-1">
-                      {REACTIONS.map((emoji) => (
+                    {/* Add reaction button */}
+                    <button
+                      type="button"
+                      title="Add reaction"
+                      onClick={() => openPickerFor(msg._id)}
+                      className="ml-1 px-2 py-0.5 rounded-full text-xs bg-white/60 hover:bg-white/80 dark:bg-black/30 border"
+                    >
+                      🤔
+                    </button>
+                    {/* Inline popover picker (appears only for this message) */}
+                    {pickerFor === msg._id && (
+                      <>
+                        {/* backdrop to close on click outside */}
                         <button
-                          key={emoji}
-                          title={`React ${emoji}`}
-                          onClick={() => void onToggleReaction(msg._id, emoji)}
-                          className="px-2 py-0.5 rounded-full text-xs bg-white/60 hover:bg-white/80 dark:bg-black/30"
+                          aria-label="close reaction picker"
+                          onClick={closePicker}
+                          className="fixed inset-0 z-10 cursor-default"
+                        />
+                        <div
+                          role="menu"
+                          className="absolute z-20 -bottom-12 left-0 flex gap-1 rounded-full bg-white shadow-md px-2 py-1 dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600"
                         >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
+                          {REACTIONS.map((emoji) => (
+                            <button
+                              key={emoji}
+                              role="menuitem"
+                              onClick={() => {
+                                void onToggleReaction(msg._id, emoji);
+                                closePicker();
+                              }}
+                              className="px-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 text-base"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -396,4 +432,6 @@ export default function ChatWindow({
       </div>
     </div>
   );
-}
+};
+
+export default ChatWindow;

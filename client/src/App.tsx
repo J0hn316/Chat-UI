@@ -15,7 +15,7 @@ import PageNotFound from './pages/PageNotFound';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 
-export default function App(): JSX.Element {
+const App = (): JSX.Element => {
   return (
     <>
       <Navbar />
@@ -46,4 +46,6 @@ export default function App(): JSX.Element {
       </Routes>
     </>
   );
-}
+};
+
+export default App;

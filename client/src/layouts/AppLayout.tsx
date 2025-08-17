@@ -1,12 +1,20 @@
 import type { JSX } from 'react';
 import { Outlet } from 'react-router-dom';
 
-export default function AppLayout(): JSX.Element {
+/**
+ * AppLayout
+ * - Mobile-first full-height page shell
+ * - Handles safe-area insets (iOS/Android)
+ * - Provides a max-width container for content pages
+ */
+const AppLayout = (): JSX.Element => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 p-4">
+    <div className="min-h-dvh bg-gray-300 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+      <main className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8 pb-[env(safe-area-inset-bottom)] pt-4">
         <Outlet />
       </main>
     </div>
   );
-}
+};
+
+export default AppLayout;

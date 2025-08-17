@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import UserList from '../components/UserList';
 import ChatWindow from '../components/ChatWindow';
 
-export default function ChatPage(): JSX.Element {
+const ChatPage = (): JSX.Element => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { user } = useAuth();
 
@@ -15,7 +15,7 @@ export default function ChatPage(): JSX.Element {
     if (user?._id) {
       // Join the user's room when the component mounts
       socket.emit('join', user._id);
-      console.log(`🔵 Joined room for user: ${user._id}`);
+      // console.log(`🔵 Joined room for user: ${user._id}`);
     }
   }, [user]);
 
@@ -44,4 +44,6 @@ export default function ChatPage(): JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default ChatPage;

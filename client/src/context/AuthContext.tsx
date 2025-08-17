@@ -7,11 +7,7 @@ import type { User } from '../types/User';
 import { AuthContext } from './AuthContextInstance';
 import { joinUserRoom, socket } from '../utils/socket';
 
-export default function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}): JSX.Element {
+const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token');
@@ -93,4 +89,6 @@ export default function AuthProvider({
       {children}
     </AuthContext.Provider>
   );
-}
+};
+
+export default AuthProvider;

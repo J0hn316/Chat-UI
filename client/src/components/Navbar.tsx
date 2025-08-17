@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import type { JSX } from 'react';
 
-export default function Navbar(): JSX.Element {
+const Navbar = (): JSX.Element => {
   const { user, logout } = useAuth();
 
   return (
@@ -49,4 +49,6 @@ export default function Navbar(): JSX.Element {
       )}
     </nav>
   );
-}
+};
+
+export default Navbar;

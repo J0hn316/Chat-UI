@@ -9,10 +9,10 @@ interface UserListProps {
   selectedUserId: string | null;
 }
 
-export default function UserList({
+const UserList = ({
   onSelectUser,
   selectedUserId,
-}: UserListProps): JSX.Element {
+}: UserListProps): JSX.Element => {
   const { users, loading } = usePresence();
 
   if (loading) return <LoadingSpinner />;
@@ -47,4 +47,6 @@ export default function UserList({
       ))}
     </div>
   );
-}
+};
+
+export default UserList;

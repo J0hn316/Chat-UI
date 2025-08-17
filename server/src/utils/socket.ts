@@ -23,7 +23,7 @@ export function setupSocket(server: HttpServer): SocketIOServer {
   });
 
   io.on('connection', (socket) => {
-    console.log(`🟢 New client connected: ${socket.id}`);
+    // console.log(`🟢 New client connected: ${socket.id}`);
     let currentUserId: string | null = null;
 
     // Client joins its own user room after connect
@@ -39,7 +39,7 @@ export function setupSocket(server: HttpServer): SocketIOServer {
         clearTimeout(pending);
         presenceTimers.delete(userId);
       }
-      console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
+      // console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
 
       // Mark online
       const entry = presence.get(userId) ?? {
@@ -81,7 +81,7 @@ export function setupSocket(server: HttpServer): SocketIOServer {
         await newMessage.populate('sender', 'username');
         await newMessage.populate('recipient', 'username');
 
-        console.log('📩 Message created:', newMessage);
+        // console.log('📩 Message created:', newMessage);
 
         // Emit the new message to both sender and recipient
         io.to(senderId).emit('message:new', newMessage);
@@ -123,7 +123,7 @@ export function setupSocket(server: HttpServer): SocketIOServer {
 
         presenceTimers.set(currentUserId, timer);
       }
-      console.log(`🔴 Client disconnected: ${socket.id}`);
+      // console.log(`🔴 Client disconnected: ${socket.id}`);
     });
   });
 

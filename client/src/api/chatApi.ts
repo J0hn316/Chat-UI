@@ -16,31 +16,33 @@ export type ChatMessage = {
   reactions?: Reaction[];
 };
 
-export async function sendMessage(
+export const sendMessage = async (
   recipientId: string,
   content: string
-): Promise<ChatMessage> {
+): Promise<ChatMessage> => {
   const res = await api.post('/messages', { recipientId, content });
   return res.data.message as ChatMessage;
-}
+};
 
-export async function getMessagesWithUser(
+export const getMessagesWithUser = async (
   otherUserId: string
-): Promise<ChatMessage[]> {
+): Promise<ChatMessage[]> => {
   const res = await api.get(`/messages/${otherUserId}`);
   return res.data.messages as ChatMessage[];
-}
+};
 
 // Mark all messages from otherUserId → me as read
-export async function markMessagesRead(otherUserId: string): Promise<string[]> {
+export const markMessagesRead = async (
+  otherUserId: string
+): Promise<string[]> => {
   const res = await api.post('/messages/mark-read', { otherUserId });
   return res.data.updatedIds as string[];
-}
+};
 
-export async function toggleMessageReaction(
+export const toggleMessageReaction = async (
   messageId: string,
   emoji: string
-): Promise<ChatMessage> {
+): Promise<ChatMessage> => {
   const res = await api.post(`/messages/${messageId}/reactions`, { emoji });
   return res.data.message;
-}
+};

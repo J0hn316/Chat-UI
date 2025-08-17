@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
 import type { JSX } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../hooks/useAuth';
 
 import LoadingSpinner from '../components/LoadingSpinner';
 
-export default function DashboardPage(): JSX.Element {
+const DashboardPage = (): JSX.Element => {
   const { user, isLoading, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -46,4 +46,6 @@ export default function DashboardPage(): JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default DashboardPage;

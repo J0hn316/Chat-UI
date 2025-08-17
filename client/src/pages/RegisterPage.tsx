@@ -6,7 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 
-export default function RegisterPage(): JSX.Element {
+const RegisterPage = (): JSX.Element => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -102,4 +102,6 @@ export default function RegisterPage(): JSX.Element {
       </div>
     </div>
   );
-}
+};
+
+export default RegisterPage;

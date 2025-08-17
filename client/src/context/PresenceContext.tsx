@@ -7,11 +7,11 @@ import { useAuth } from '../hooks/useAuth';
 import type { PresenceUser } from '../types/Presence';
 import { PresenceContext } from './PresenceContextInstance';
 
-export default function PresenceProvider({
+const PresenceProvider = ({
   children,
 }: {
   children: ReactNode;
-}): JSX.Element {
+}): JSX.Element => {
   const [users, setUsers] = useState<PresenceUser[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -91,4 +91,6 @@ export default function PresenceProvider({
       {children}
     </PresenceContext.Provider>
   );
-}
+};
+
+export default PresenceProvider;
