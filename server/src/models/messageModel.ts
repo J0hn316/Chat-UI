@@ -15,6 +15,17 @@ export interface IMessage extends Document {
   reactions: IMessageReaction[];
 }
 
+// Sub-document schema for reactions
+const reactionSchema = new Schema<IMessageReaction>(
+  {
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    emoji: { type: String, required: true },
+  },
+  {
+    _id: false,
+  }
+);
+
 const messageSchema = new Schema<IMessage>(
   {
     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -23,8 +34,8 @@ const messageSchema = new Schema<IMessage>(
     createdAt: { type: Date, default: Date.now },
     readAt: { type: Date, default: null },
     reactions: {
-      user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-      emoji: { type: String, required: true },
+      type: [reactionSchema],
+      default: [],
     },
   },
   {

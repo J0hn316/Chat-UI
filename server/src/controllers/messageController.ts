@@ -165,18 +165,23 @@ export const toggleReaction = async (
       return;
     }
 
-    const msgExist = msg.reactions.find(
+    // Normalize reactions to an array
+    const reactions = Array.isArray(msg.reactions) ? msg.reactions : [];
+    if (!Array.isArray(msg.reactions)) msg.reactions = reactions;
+
+    const getOwnerId = (reaction: { user: any }): string =>
+      reaction?.user?._id ? String(reaction.user._id) : String(reaction.user);
+
+    const mine = reactions.find(
       (reaction) =>
-        String(reaction.user) === String(userId) && reaction.emoji === emoji
+        getOwnerId(reaction) === String(userId) && reaction.emoji === emoji
     );
 
-    if (msgExist) {
-      // Remove
+    if (mine) {
+      // remove my existing identical reaction
       msg.reactions = msg.reactions.filter(
         (reaction) =>
-          !(
-            String(reaction.user) === String(userId) && reaction.emoji === emoji
-          )
+          !(getOwnerId(reaction) === String(userId) && reaction.emoji === emoji)
       );
     } else {
       // Add
