@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { socket } from '../utils/socket';
 import type { User } from '../types/User';
@@ -9,17 +9,44 @@ import ChatWindow from '../components/ChatWindow';
 
 const ChatPage = (): JSX.Element => {
   const [isListOpen, setIsListOpen] = useState(false); // Mobile drawer state for the UserList
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // Currently selected conversation partner
+
+  // refs for focus management
+  const panelRef = useRef<HTMLDivElement>(null); // Drawer panel container
+  const triggerRef = useRef<HTMLButtonElement>(null); // Conversations button
 
   const { user } = useAuth();
 
+  // Close drawer and return focus to trigger
+  const closeList = () => {
+    setIsListOpen(false);
+    requestAnimationFrame(() => triggerRef.current?.focus());
+  };
+
+  const openList = () => {
+    setIsListOpen(true);
+    requestAnimationFrame(() => triggerRef.current?.focus());
+  };
+
+  // Find focusable children within a container
+  const getFocusable = (root: HTMLElement): HTMLElement[] => {
+    const selectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+    return Array.from(root.querySelectorAll<HTMLElement>(selectors)).filter(
+      (el) => el.offsetParent !== null || el.getClientRects().length > 0
+    );
+  };
+
+  // Join the user's room when the component mounts
   useEffect(() => {
-    if (user?._id) {
-      // Join the user's room when the component mounts
-      socket.emit('join', user._id);
-      // console.log(`🔵 Joined room for user: ${user._id}`);
-    }
-  }, [user]);
+    if (user?._id) socket.emit('join', user._id);
+  }, [user?._id]);
 
   // Close drawer when a user is picked
   useEffect(() => {
@@ -34,6 +61,47 @@ const ChatPage = (): JSX.Element => {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  // Focus trap effect
+  useEffect(() => {
+    if (!isListOpen || !panelRef.current) return;
+
+    const panel = panelRef.current;
+
+    // Move focus inside on open
+    const firstFocusAble = getFocusable(panel)[0];
+    (firstFocusAble ?? panel).focus();
+
+    const onKeyDown = (evt: KeyboardEvent) => {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        closeList();
+        return;
+      }
+
+      if (evt.key !== 'Tab') return;
+
+      const focusAbles = getFocusable(panel);
+      if (focusAbles.length === 0) return;
+
+      const first = focusAbles[0];
+      const last = focusAbles[focusAbles.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!active) return;
+
+      if (!evt.shiftKey && active === last) {
+        evt.preventDefault();
+        first.focus();
+      } else if (evt.shiftKey && active === first) {
+        evt.preventDefault();
+        last.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isListOpen]);
 
   return (
     <div className="min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-72px)] flex bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
@@ -56,29 +124,43 @@ const ChatPage = (): JSX.Element => {
       >
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-black/40"
-          onClick={() => setIsListOpen(false)}
+          className={`absolute inset-0 bg-black/40 transition-opacity
+              ${
+                isListOpen
+                  ? 'opacity-100 pointer-events-auto'
+                  : 'opacity-0 pointer-events-none'
+              }`}
+          onClick={closeList}
+          aria-hidden="true"
         />
-        {/* Panel */}
+        {/* Drawer Panel */}
         <div
+          id="mobile-conversations"
+          ref={panelRef}
+          tabIndex={-1}
+          inert={!isListOpen || undefined}
           className={`absolute left-0 top-0 h-full w-[85%] max-w-xs bg-white dark:bg-gray-800 shadow-xl
-                      transform transition-transform duration-200
-                      ${isListOpen ? 'translate-x-0' : '-translate-x-full'}`}
-          role="dialog"
+              transform transition-transform duration-200
+              ${isListOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          role={isListOpen ? 'dialog' : undefined}
+          aria-modal={isListOpen ? 'true' : undefined}
           aria-label="Conversations"
         >
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <h2 className="font-semibold">Conversations</h2>
             <button
               className="rounded px-2 py-1 text-sm bg-gray-200 dark:bg-gray-700"
-              onClick={() => setIsListOpen(false)}
+              onClick={closeList}
             >
               Close
             </button>
           </div>
           <div className="p-4">
             <UserList
-              onSelectUser={setSelectedUser}
+              onSelectUser={(u) => {
+                setSelectedUser(u);
+                closeList();
+              }}
               selectedUserId={selectedUser?._id ?? null}
             />
           </div>
@@ -90,7 +172,7 @@ const ChatPage = (): JSX.Element => {
         {/* Mobile header row with toggle */}
         <div className="md:hidden mb-3 flex items-center justify-between">
           <button
-            onClick={() => setIsListOpen(true)}
+            onClick={openList}
             className="inline-flex items-center gap-2 rounded px-3 py-2 text-sm bg-white dark:bg-gray-800 shadow border border-gray-200 dark:border-gray-700"
           >
             ☰ Chats
