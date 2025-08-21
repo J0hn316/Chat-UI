@@ -4,7 +4,7 @@ A real-time chat application built with a modern fullstack stack:
 
 - **Frontend (Client)**: React + TypeScript + Tailwind CSS (via Vite)
 - **Backend (Server)**: Node.js + Express + TypeScript
-- **Database**: MongoDB (and MySQL in a future variant)
+- **Database**: MongoDB
 
 ---
 
@@ -35,7 +35,6 @@ chat-ui/
 - Express
 - TypeScript
 - MongoDB with Mongoose
-- (Optional: MySQL for a future version)
 
 ---
 
@@ -44,11 +43,11 @@ chat-ui/
 - ✅ Modular fullstack architecture (client/server)
 - 🧠 Reusable hooks, components, and middleware
 - 🔐 User Authentication (register, login, sessions)
-- 📥 Real-time chat interface (e.g., WebSocket or Socket.IO)
+- 📥 Real-time chat interface (Socket.IO)
 - 🔍 Advanced filtering, message history, search
-- 📊 Analytics or visualizations (e.g., chat activity)
-- 🌐 Integration with external APIs (e.g., GIPHY, Unsplash for images)
-- ⚙️ State management (e.g., React Context or Zustand)
+- 📊 Analytics or visualizations (e.g chat activity)
+- 🌐 Integration with external APIs
+- ⚙️ State management (e.g.React Context)
 - 💡 Fully typed with TypeScript (client & server)
 
 ---
@@ -85,12 +84,6 @@ npm run dev
 - Deploy to Vercel (client) & Render/Heroku (server)
 - Add unit/integration testing (Jest)
 - Dark mode toggle
-
----
-
-## 🧑‍💻 Author
-
-Created by John as part of a Tier 3 fullstack learning path.
 
 ---
 
