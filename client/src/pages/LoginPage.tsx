@@ -15,12 +15,12 @@ const LoginPage = (): JSX.Element => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const getEmail = (evt: ChangeEvent<HTMLInputElement>): void => {
+  const handleEmail = (evt: ChangeEvent<HTMLInputElement>): void => {
     const email = evt.target.value;
     setEmail(email);
   };
 
-  const getPassword = (evt: ChangeEvent<HTMLInputElement>): void => {
+  const handlePassword = (evt: ChangeEvent<HTMLInputElement>): void => {
     const password = evt.target.value;
     setPassword(password);
   };
@@ -50,84 +50,81 @@ const LoginPage = (): JSX.Element => {
   };
 
   return (
-    <section className="mx-auto w-full max-w-md">
-      <div className="mt-5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4 sm:p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm mb-1">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
-              value={email}
-              onChange={getEmail}
-              required
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label htmlFor="password" className="block text-sm mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
-              value={password}
-              onChange={getPassword}
-              required
-            />
-          </div>
-
-          {/* Error (announced by screen readers) */}
-          {error && (
-            <p
-              role="alert"
-              className=" text-red-500 text-sm"
-              aria-live="assertive"
-            >
-              {error}
-            </p>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="text-blue-600 hover:underline"
-              >
-                Forgot password?
-              </Link>
+    <div className="min-h-screen bg-gray-400">
+      <section className="mx-auto w-full max-w-md">
+        <div className="mt-5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4 sm:p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
+                value={email}
+                onChange={handleEmail}
+                required
+              />
             </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            aria-busy={loading}
-            className="w-full rounded-md bg-blue-600 text-white py-2.5 font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-blue-700 transition"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-gray-400">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:underline">
-            Register here
-          </Link>
-        </p>
-      </div>
-    </section>
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
+                value={password}
+                onChange={handlePassword}
+                required
+              />
+            </div>
+            {/* Error (announced by screen readers) */}
+            {error && (
+              <p
+                role="alert"
+                className=" text-red-500 text-sm"
+                aria-live="assertive"
+              >
+                {error}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <Link
+                  to="/forgot-password"
+                  className="text-blue-600 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              aria-busy={loading}
+              className="w-full rounded-md bg-blue-600 text-white py-2.5 font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-blue-700 transition"
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+          <p className="mt-4 text-center text-gray-400">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-blue-500 hover:underline">
+              Register here
+            </Link>
+          </p>
+        </div>
+      </section>
+    </div>
   );
 };
 
