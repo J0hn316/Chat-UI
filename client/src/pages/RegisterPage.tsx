@@ -56,7 +56,7 @@ const RegisterPage = (): JSX.Element => {
         confirmPassword,
       });
       await login(res.data.token);
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message: string }>;
       const message =

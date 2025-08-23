@@ -37,7 +37,7 @@ const LoginPage = (): JSX.Element => {
       const { token } = res.data;
 
       await login(token);
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message: string }>;
       const message =

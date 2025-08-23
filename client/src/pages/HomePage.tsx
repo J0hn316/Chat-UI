@@ -33,9 +33,9 @@ const HomePage = (): JSX.Element => {
   return (
     <section className="mx-auto w-full max-w-md">
       <header className="mb-6 text-center">
-        <h1 className="text-xl sm:text-2xl font-semibold">Dashboard</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Home Page</h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-          Welcome back
+          Welcome
           {user?.username ? `, ${capitalizeFirstLetter(user.username)}` : ''}
         </p>
       </header>

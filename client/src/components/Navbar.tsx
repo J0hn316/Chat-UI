@@ -13,7 +13,7 @@ const Navbar = (): JSX.Element => {
 
   return (
     <nav className="mx-auto flex max-w-7xl items-center justify-between bg-gray-800 text-white p-4">
-      <Link to="/" className="text-lg font-semibold hover:text-blue-500">
+      <Link to="/home" className="text-lg font-semibold hover:text-blue-500">
         Chat UI
       </Link>
 
