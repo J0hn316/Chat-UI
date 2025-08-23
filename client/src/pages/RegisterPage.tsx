@@ -75,7 +75,7 @@ const RegisterPage = (): JSX.Element => {
           Create an account.
         </h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-          Start chatting in seconds.
+          Sign up to start chatting.
         </p>
       </header>
 

@@ -5,8 +5,6 @@ import AppLayout from './layouts/AppLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 import PresenceProvider from './context/PresenceContext';
 
-import Navbar from './components/Navbar';
-
 // Importing pages
 import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
@@ -18,7 +16,6 @@ import DashboardPage from './pages/DashboardPage';
 const App = (): JSX.Element => {
   return (
     <>
-      <Navbar />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LoginPage />} />
@@ -39,9 +36,12 @@ const App = (): JSX.Element => {
         >
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="chat" element={<ChatPage />} />
+
+          {/* Nested catch-all 404 (protected area only) */}
+          <Route path="*" element={<PageNotFound />} />
         </Route>
 
-        {/* Catch-all 404 */}
+        {/* Global Catch-all 404 for public/unknown roots */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>

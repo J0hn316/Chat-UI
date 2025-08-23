@@ -54,8 +54,10 @@ const PresenceProvider = ({
   useEffect(() => {
     const onOnline = ({ userId }: { userId: string }) => {
       setUsers((prev) =>
-        prev.map((u) =>
-          u._id === userId ? { ...u, isOnline: true, lastSeen: null } : u
+        prev.map((user) =>
+          user._id === userId
+            ? { ...user, isOnline: true, lastSeen: null }
+            : user
         )
       );
     };
@@ -68,8 +70,8 @@ const PresenceProvider = ({
       lastSeen: string | null;
     }) => {
       setUsers((prev) =>
-        prev.map((u) =>
-          u._id === userId ? { ...u, isOnline: false, lastSeen } : u
+        prev.map((user) =>
+          user._id === userId ? { ...user, isOnline: false, lastSeen } : user
         )
       );
     };
@@ -84,7 +86,7 @@ const PresenceProvider = ({
   }, []);
 
   const getById = (id: string): PresenceUser | undefined =>
-    users.find((u) => u._id === id);
+    users.find((user) => user._id === id);
 
   return (
     <PresenceContext.Provider value={{ users, loading, refresh, getById }}>
