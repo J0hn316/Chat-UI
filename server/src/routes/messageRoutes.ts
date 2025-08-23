@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 
 import { authMiddleware } from '../middleware/authMiddleware';
 import {
@@ -8,7 +8,7 @@ import {
   toggleReaction,
 } from '../controllers/messageController';
 
-const router = express.Router();
+const router = Router();
 
 // 🔒 All routes below require authentication
 router.use(authMiddleware);

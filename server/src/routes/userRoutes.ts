@@ -1,10 +1,10 @@
-import express from 'express';
+import { Router } from 'express';
 
 import { authMiddleware } from '../middleware/authMiddleware';
 import { getCurrentUser, getAllUsers } from '../controllers/userController';
 import { registerUser, loginUser } from '../controllers/authController';
 
-const router = express.Router();
+const router = Router();
 
 // Public routes
 router.post('/register', registerUser);

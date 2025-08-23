@@ -142,9 +142,6 @@ const RegisterPage = (): JSX.Element => {
               // Optional: enforce minimum length on client
               minLength={8}
             />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Use at least 8 characters.
-            </p>
           </div>
 
           {/* Confirm Password */}
@@ -177,7 +174,7 @@ const RegisterPage = (): JSX.Element => {
 
         <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
           Already have an account?{' '}
-          <Link to="/" className="text-blue-600 hover:underline">
+          <Link to="/" className="text-blue-600">
             Login here
           </Link>
         </p>

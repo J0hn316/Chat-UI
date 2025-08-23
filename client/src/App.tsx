@@ -6,12 +6,14 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import PresenceProvider from './context/PresenceContext';
 
 // Importing pages
+import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
-import PageNotFound from './pages/PageNotFound';
+import PageNotFound from './pages/NotFoundPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import ProtectNotFound from './pages/ProtectedNotFoundPage';
 
 const App = (): JSX.Element => {
   return (
@@ -34,11 +36,12 @@ const App = (): JSX.Element => {
             </ProtectedRoute>
           }
         >
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="home" element={<HomePage />} />
           <Route path="chat" element={<ChatPage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
 
           {/* Nested catch-all 404 (protected area only) */}
-          <Route path="*" element={<PageNotFound />} />
+          <Route path="*" element={<ProtectNotFound />} />
         </Route>
 
         {/* Global Catch-all 404 for public/unknown roots */}
