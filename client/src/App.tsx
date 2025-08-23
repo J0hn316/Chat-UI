@@ -23,7 +23,6 @@ const App = (): JSX.Element => {
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/about" element={<AboutPage />} />
 
         {/* Protected Routes */}
         <Route
@@ -37,6 +36,7 @@ const App = (): JSX.Element => {
           }
         >
           <Route path="home" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
 

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import userRoutes from './routes/userRoutes';
+import statsRoutes from './routes/statsRoutes';
 import messageRoutes from './routes/messageRoutes';
 
 const app = express();
@@ -20,5 +21,7 @@ app.use('/api/users', userRoutes);
 
 // Use message routes
 app.use('/api/messages', messageRoutes);
+
+app.use('/api/stats', statsRoutes);
 
 export default app;

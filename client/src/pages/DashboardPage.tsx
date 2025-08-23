@@ -1,9 +1,10 @@
 import type { JSX } from 'react';
+import type { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 
 import api from '../utils/api';
-import type { StatsResponse } from '../types/Stats';
 import CardStats from '../components/CardStats';
+import type { StatsResponse } from '../types/Stats';
 
 const DashboardPage = (): JSX.Element => {
   const [stats, setStats] = useState<StatsResponse | null>(null);
@@ -11,29 +12,41 @@ const DashboardPage = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+    const mounted = true;
+    const controller = new AbortController();
 
     (async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Adjust the path if your server is mounted differently (e.g., /api/stats)
-        const res = await api.get<StatsResponse>('/stats');
+        const res = await api.get<StatsResponse>('/stats', {
+          signal: controller.signal,
+        });
         if (!mounted) return;
+
         setStats(res.data);
-      } catch (err) {
-        if (!mounted) return;
-        setError('Failed to load stats.');
-        console.error(err);
+      } catch (err: unknown) {
+        // Ignore fetch aborts
+        if (
+          (err instanceof DOMException && err.name === 'AbortError') ||
+          (err as AxiosError).code === 'ERR_CANCELED'
+        ) {
+          return;
+        }
+
+        // Axios error narrowing
+        const ae = err as AxiosError<{ message?: string }>;
+        const message = ae?.response?.data?.message ?? 'Failed to load stats.';
+        setError(message);
+
+        console.error('Stats fetch error:', err);
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false);
       }
     })();
 
-    return () => {
-      mounted = false;
-    };
+    return () => controller.abort();
   }, []);
 
   return (
@@ -67,6 +80,9 @@ const DashboardPage = (): JSX.Element => {
           value={stats?.messagesCount}
           loading={loading}
         />
+
+        {/* Reserve for future metric */}
+        <CardStats title="Coming Soon" value={undefined} loading={loading} />
       </div>
     </section>
   );
