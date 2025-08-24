@@ -22,14 +22,16 @@ export const setupSocket = (server: HttpServer): SocketIOServer => {
     transports: ['websocket', 'polling'],
   });
 
+  const broadcastOnlineCount = () => {
+    io.emit('presence:onlineCount', { count: presence.size });
+  };
+
   io.on('connection', (socket) => {
-    // console.log(`🟢 New client connected: ${socket.id}`);
     let currentUserId: string | null = null;
 
     // Client joins its own user room after connect
     socket.on('join', (userId: string) => {
       if (!userId) return;
-
       currentUserId = userId;
       socket.join(userId);
 
@@ -39,7 +41,6 @@ export const setupSocket = (server: HttpServer): SocketIOServer => {
         clearTimeout(pending);
         presenceTimers.delete(userId);
       }
-      // console.log(`🔵 Client ${socket.id} joined room: ${userId}`);
 
       // Mark online
       const entry = presence.get(userId) ?? {
@@ -53,6 +54,7 @@ export const setupSocket = (server: HttpServer): SocketIOServer => {
 
       // broadcast presence to everyone (or to friends/contacts if you have that)
       io.emit('presence:online', { userId });
+      broadcastOnlineCount();
     });
 
     // --- Typing indicators ---
@@ -119,11 +121,11 @@ export const setupSocket = (server: HttpServer): SocketIOServer => {
             userId: currentUserId,
             lastSeen: now.toISOString(),
           });
+          broadcastOnlineCount();
         }, OFFLINE_GRACE_MS);
 
         presenceTimers.set(currentUserId, timer);
       }
-      // console.log(`🔴 Client disconnected: ${socket.id}`);
     });
   });
 

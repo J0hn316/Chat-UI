@@ -1,20 +1,20 @@
 import type { JSX } from 'react';
-import type { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
+import axios, { AxiosError, CanceledError } from 'axios';
 
 import api from '../utils/api';
+import { socket } from '../utils/socket';
 import CardStats from '../components/CardStats';
 import type { StatsResponse } from '../types/Stats';
 
 const DashboardPage = (): JSX.Element => {
-  const [stats, setStats] = useState<StatsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<StatsResponse | null>(null);
+  const [liveOnline, setLiveOnline] = useState<number | null>(null);
 
   useEffect(() => {
-    const mounted = true;
     const controller = new AbortController();
-
     (async () => {
       try {
         setLoading(true);
@@ -23,30 +23,40 @@ const DashboardPage = (): JSX.Element => {
         const res = await api.get<StatsResponse>('/stats', {
           signal: controller.signal,
         });
-        if (!mounted) return;
 
         setStats(res.data);
+        setLiveOnline(res.data.onlineUsers ?? null);
       } catch (err: unknown) {
-        // Ignore fetch aborts
-        if (
-          (err instanceof DOMException && err.name === 'AbortError') ||
-          (err as AxiosError).code === 'ERR_CANCELED'
-        ) {
-          return;
-        }
+        // Ignore native AbortController cancellations (DOM)
+        if (err instanceof DOMException && err.name === 'AbortError') return;
 
-        // Axios error narrowing
+        // Ignore Axios cancellations
+        if (err instanceof CanceledError) return;
+
+        // Extra safety for older call sites
+        if (axios.isCancel(err)) return;
+
         const ae = err as AxiosError<{ message?: string }>;
         const message = ae?.response?.data?.message ?? 'Failed to load stats.';
-        setError(message);
 
-        console.error('Stats fetch error:', err);
+        setError(message);
       } finally {
         setLoading(false);
       }
     })();
 
     return () => controller.abort();
+  }, []);
+
+  // Socket listener for live online user count
+  useEffect(() => {
+    const onCount = (payload: { count: number }) => {
+      setLiveOnline(payload.count);
+    };
+    socket.on('presence:onlineCount', onCount);
+    return () => {
+      socket.off('presence:onlineCount', onCount);
+    };
   }, []);
 
   return (
@@ -67,14 +77,12 @@ const DashboardPage = (): JSX.Element => {
 
       {/* Stats grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Users */}
         <CardStats
           title="Total Users"
           value={stats?.usersCount}
           loading={loading}
         />
 
-        {/* Messages */}
         <CardStats
           title="Total Messages"
           value={stats?.messagesCount}
@@ -89,12 +97,9 @@ const DashboardPage = (): JSX.Element => {
 
         <CardStats
           title="Online Users"
-          value={stats?.onlineUsers}
-          loading={loading}
+          value={liveOnline ?? stats?.onlineUsers}
+          loading={loading && liveOnline == null}
         />
-
-        {/* Reserve for future metric */}
-        <CardStats title="Coming Soon" value={undefined} loading={loading} />
       </div>
     </section>
   );
