@@ -81,6 +81,18 @@ const DashboardPage = (): JSX.Element => {
           loading={loading}
         />
 
+        <CardStats
+          title="Messages Today"
+          value={stats?.messagesToday}
+          loading={loading}
+        />
+
+        <CardStats
+          title="Online Users"
+          value={stats?.onlineUsers}
+          loading={loading}
+        />
+
         {/* Reserve for future metric */}
         <CardStats title="Coming Soon" value={undefined} loading={loading} />
       </div>

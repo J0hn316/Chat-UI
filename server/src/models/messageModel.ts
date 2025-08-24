@@ -31,7 +31,6 @@ const messageSchema = new Schema<IMessage>(
     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     recipient: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
     readAt: { type: Date, default: null },
     reactions: {
       type: [reactionSchema],
@@ -44,6 +43,7 @@ const messageSchema = new Schema<IMessage>(
   }
 );
 
+messageSchema.index({ createdAt: 1 });
 messageSchema.index({ _id: 1, 'reactions.user': 1, 'reactions.emoji': 1 });
 
 const Message = mongoose.model<IMessage>('Message', messageSchema);
