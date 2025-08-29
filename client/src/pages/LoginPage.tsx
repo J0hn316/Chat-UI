@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { JSX, FormEvent, ChangeEvent } from 'react';
 import type { AxiosError } from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import type { JSX, FormEvent, ChangeEvent } from 'react';
 
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
@@ -52,33 +52,41 @@ const LoginPage = (): JSX.Element => {
   return (
     <section className="mx-auto w-full max-w-md">
       <header className="mb-6 text-center">
-        <h1 className="text-xl sm:text-2xl font-semibold">Welcome back.</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-600 dark:text-white">
+          Welcome back.
+        </h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
           Log in to start chatting.
         </p>
       </header>
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4 sm:p-6">
+      <div className="rounded-lg border border-gray-500 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm mb-1 dark:text-gray-100"
+            >
               Email
             </label>
             <input
               id="email"
               type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               value={email}
+              inputMode="email"
+              placeholder="Email"
+              autoComplete="email"
               onChange={handleEmail}
+              className="w-full rounded-md border border-gray-500 dark:border-gray-700 bg-white dark:bg-white px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm mb-1 dark:text-gray-100"
+            >
               Password
             </label>
             <input
@@ -86,7 +94,7 @@ const LoginPage = (): JSX.Element => {
               type="password"
               autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-500 dark:border-gray-700 bg-white dark:bg-white px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={handlePassword}
               required
@@ -106,7 +114,7 @@ const LoginPage = (): JSX.Element => {
             <div className="text-sm">
               <Link
                 to="/forgot-password"
-                className="text-blue-600 hover:underline"
+                className="text-gray-600 hover:underline hover:text-blue-600 dark:text-white dark:hover:text-blue-600"
               >
                 Forgot password?
               </Link>
@@ -116,14 +124,18 @@ const LoginPage = (): JSX.Element => {
             type="submit"
             disabled={loading}
             aria-busy={loading}
-            className="w-full rounded-md bg-blue-600 text-white py-2.5 font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-blue-700 transition"
+            className="w-full rounded-md bg-gray-500 text-white py-2.5 font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-gray-700 transition dark:bg-blue-600 dark:hover:bg-blue-700"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
         <p className="mt-4 text-center text-gray-400">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:underline">
+          <Link
+            to="/register"
+            className="text-gray-600
+            hover:text-blue-600 hover:underline dark:text-white dark:hover:text-blue-600"
+          >
             Register here
           </Link>
         </p>

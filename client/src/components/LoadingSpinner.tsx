@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 
 const LoadingSpinner = (): JSX.Element => {
   return (
-    <div className="flex space-x-2 justify-center items-center h-screen bg-gray-300 dark:bg-gray-900">
+    <div className="flex space-x-2 justify-center items-center h-screen bg-gray-900">
       {[0, 1, 2].map((i) => (
         <span
           key={i}

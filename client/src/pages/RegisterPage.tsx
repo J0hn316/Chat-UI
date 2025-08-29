@@ -37,7 +37,9 @@ const RegisterPage = (): JSX.Element => {
     setConfirmPassword(confirmPassword);
   };
 
-  const handleSubmit = async (evt: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    evt: FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     evt.preventDefault();
     setError(null);
 
@@ -71,7 +73,7 @@ const RegisterPage = (): JSX.Element => {
   return (
     <section className="mx-auto w-full max-w-md">
       <header className="mb-6 text-center">
-        <h1 className="text-xl sm:text-2xl font-semibold">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-600 dark:text-white">
           Create an account.
         </h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -79,7 +81,7 @@ const RegisterPage = (): JSX.Element => {
         </p>
       </header>
 
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4 sm:p-6">
+      <div className="rounded-lg border border-gray-500 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4 sm:p-6">
         {error && (
           <p
             role="alert"
@@ -92,24 +94,30 @@ const RegisterPage = (): JSX.Element => {
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {/* Username */}
           <div>
-            <label htmlFor="username" className="block text-sm mb-1">
+            <label
+              htmlFor="username"
+              className="block text-sm mb-1 dark:text-white"
+            >
               Username
             </label>
             <input
               id="username"
               type="text"
-              autoComplete="username"
-              placeholder="your name"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               value={username}
               onChange={handleUser}
+              autoComplete="username"
+              placeholder="Enter your name or username"
+              className="w-full rounded-md border border-gray-500 dark:border-gray-700 bg-white dark:bg-white px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm mb-1 dark:text-white"
+            >
               Email
             </label>
             <input
@@ -118,7 +126,7 @@ const RegisterPage = (): JSX.Element => {
               inputMode="email"
               autoComplete="email"
               placeholder="you@example.com"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-500 dark:border-gray-700 bg-white dark:bg-white px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               value={email}
               onChange={handleEmail}
               required
@@ -127,7 +135,10 @@ const RegisterPage = (): JSX.Element => {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm mb-1 dark:text-white"
+            >
               Password
             </label>
             <input
@@ -135,7 +146,7 @@ const RegisterPage = (): JSX.Element => {
               type="password"
               autoComplete="new-password"
               placeholder="••••••••"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-500 dark:border-gray-700 bg-white dark:bg-white px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={handlePassword}
               required
@@ -146,7 +157,10 @@ const RegisterPage = (): JSX.Element => {
 
           {/* Confirm Password */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm mb-1">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm mb-1 dark:text-white"
+            >
               Confirm password
             </label>
             <input
@@ -154,7 +168,7 @@ const RegisterPage = (): JSX.Element => {
               type="password"
               autoComplete="new-password"
               placeholder="••••••••"
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-500 dark:border-gray-700 bg-white dark:bg-white px-3 py-2 text-base outline-none focus:ring-2 focus:ring-blue-500"
               value={confirmPassword}
               onChange={handleConfirmPassword}
               required
@@ -166,7 +180,7 @@ const RegisterPage = (): JSX.Element => {
             type="submit"
             disabled={loading}
             aria-busy={loading}
-            className="w-full rounded-md bg-blue-600 text-white py-2.5 font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-blue-700 transition"
+            className="w-full rounded-md bg-gray-500 text-white py-2.5 font-medium disabled:opacity-70 disabled:cursor-not-allowed hover:bg-gray-700 transition dark:bg-blue-600 dark:hover:bg-blue-700"
           >
             {loading ? 'Creating account…' : 'Register'}
           </button>
@@ -174,7 +188,11 @@ const RegisterPage = (): JSX.Element => {
 
         <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
           Already have an account?{' '}
-          <Link to="/" className="text-blue-600">
+          <Link
+            to="/"
+            className="text-blue-500
+            hover:text-blue-600 hover:underline dark:text-white dark:hover:text-blue-600"
+          >
             Login here
           </Link>
         </p>

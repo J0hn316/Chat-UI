@@ -12,6 +12,7 @@ export default {
         accentCyan: 'hsl(176, 68%, 64%)',
         accentBlue: 'hsl(198, 60%, 50%)',
         lightRed: 'hsl(0, 100%, 63%)',
+        green: '#68d391',
       },
     },
   },

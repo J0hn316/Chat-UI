@@ -14,15 +14,21 @@ import PageNotFound from './pages/NotFoundPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProtectNotFound from './pages/ProtectedNotFoundPage';
+import PublicLayout from './layouts/PublicLayout';
 
 const App = (): JSX.Element => {
   return (
     <>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          {/* Global Catch-all 404 for public/unknown roots */}
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
 
         {/* Protected Routes */}
         <Route
@@ -35,17 +41,14 @@ const App = (): JSX.Element => {
             </ProtectedRoute>
           }
         >
-          <Route path="home" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="about" element={<AboutPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
 
           {/* Nested catch-all 404 (protected area only) */}
           <Route path="*" element={<ProtectNotFound />} />
         </Route>
-
-        {/* Global Catch-all 404 for public/unknown roots */}
-        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
   );
