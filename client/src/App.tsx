@@ -24,7 +24,6 @@ const App = (): JSX.Element => {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/about" element={<AboutPage />} />
           <Route path="/register" element={<RegisterPage />} />
           {/* Global Catch-all 404 for public/unknown roots */}
           <Route path="*" element={<PageNotFound />} />

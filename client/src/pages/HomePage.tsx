@@ -31,44 +31,43 @@ const HomePage = (): JSX.Element => {
     string.charAt(0).toUpperCase() + string.slice(1);
 
   return (
-    <section className="mx-auto w-full max-w-md">
-      <header className="mb-6 text-center">
+    <>
+      <header className="mx-auto text-center">
         <h1 className="text-xl sm:text-2xl font-semibold">Home Page</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+        <p className="text-sm text-black dark:text-white">
           Welcome
           {user?.username ? `, ${capitalizeFirstLetter(user.username)}` : ''}
         </p>
       </header>
-
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-4 sm:p-6 ">
-        <div className="space-y-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Email
-            </p>
-            <p className="text-sm sm:text-base text-gray-900 dark:text-gray-100 break-words">
-              {user?.email ?? '-'}
-            </p>
+      <section className="w-full max-w-md mt-4">
+        <div className="rounded-lg border border-gray-900 dark:border-gray-700 bg-blue-500 dark:bg-gray-800 shadow-sm p-4 sm:p-6 ">
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-black dark:text-gray-400">
+                Email
+              </p>
+              <p className="text-sm sm:text-base text-gray-900 dark:text-gray-100 break-words">
+                {user?.email ?? '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm uppercase tracking-wide text-black dark:text-gray-400">
+                Joined
+              </p>
+              <p className="text-sm sm:text-base text-gray-900 dark:text-gray-100">
+                {joined}
+              </p>
+            </div>
+            <button
+              onClick={logout}
+              className="w-full rounded-md bg-red text-white py-2.5 font-medium hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
           </div>
-
-          <div>
-            <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Joined
-            </p>
-            <p className="text-sm sm:text-base text-gray-900 dark:text-gray-100">
-              {joined}
-            </p>
-          </div>
-
-          <button
-            onClick={logout}
-            className="w-full rounded-md bg-red-600 text-white py-2.5 font-medium hover:bg-red-700 transition"
-          >
-            Logout
-          </button>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 

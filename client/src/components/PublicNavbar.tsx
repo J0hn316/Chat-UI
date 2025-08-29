@@ -68,9 +68,6 @@ const PublicNavbar = (): JSX.Element => {
             <Link className="hover:text-accentBlue" to="/register">
               Register
             </Link>
-            <Link className="hover:text-accentBlue" to="/about">
-              About
-            </Link>
           </div>
         </div>
       </div>
@@ -78,13 +75,6 @@ const PublicNavbar = (): JSX.Element => {
       {/* Mobile dropdown */}
       {isOpen && (
         <div id="public-navigation" className="md:hidden mt-3 space-y-2">
-          <Link
-            className="block hover:text-accentBlue"
-            to="/about"
-            onClick={closeMenu}
-          >
-            About
-          </Link>
           <Link
             className="block hover:text-accentBlue"
             to="/login"
