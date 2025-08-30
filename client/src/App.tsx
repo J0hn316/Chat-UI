@@ -2,6 +2,8 @@ import type { JSX } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import AppLayout from './layouts/AppLayout';
+import PublicLayout from './layouts/PublicLayout';
+
 import ProtectedRoute from './routes/ProtectedRoute';
 import PresenceProvider from './context/PresenceContext';
 
@@ -14,7 +16,8 @@ import PageNotFound from './pages/NotFoundPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProtectNotFound from './pages/ProtectedNotFoundPage';
-import PublicLayout from './layouts/PublicLayout';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import RestPasswordPage from './pages/ResetPasswordPage';
 
 const App = (): JSX.Element => {
   return (
@@ -25,6 +28,8 @@ const App = (): JSX.Element => {
           <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<RestPasswordPage />} />
           {/* Global Catch-all 404 for public/unknown roots */}
           <Route path="*" element={<PageNotFound />} />
         </Route>
