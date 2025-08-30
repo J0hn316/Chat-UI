@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-import colors from 'tailwindcss/colors';
+// import colors from 'tailwindcss/colors';
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -13,9 +13,6 @@ export default {
         xl: '1440px',
       },
       colors: {
-        // Tailwind defaults
-        ...colors,
-
         // Custom colors
         darkBlue: 'hsl(217, 28%, 15%)',
         darkBlue1: 'hsl(218, 28%, 13%)',

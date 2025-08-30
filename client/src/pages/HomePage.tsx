@@ -60,7 +60,7 @@ const HomePage = (): JSX.Element => {
             </div>
             <button
               onClick={logout}
-              className="w-full rounded-md bg-red text-white py-2.5 font-medium hover:bg-red-700 transition"
+              className="w-full rounded-md bg-rose-400 text-white py-2.5 font-medium hover:bg-rose-700 transition"
             >
               Logout
             </button>

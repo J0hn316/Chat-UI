@@ -102,11 +102,7 @@ const LoginPage = (): JSX.Element => {
           </div>
           {/* Error (announced by screen readers) */}
           {error && (
-            <p
-              role="alert"
-              className=" text-red-500 text-sm"
-              aria-live="assertive"
-            >
+            <p role="alert" className=" text-red text-sm" aria-live="assertive">
               {error}
             </p>
           )}

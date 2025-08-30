@@ -4,6 +4,7 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes';
 import statsRoutes from './routes/statsRoutes';
 import messageRoutes from './routes/messageRoutes';
+import passwordRoutes from './routes/passwordRoutes';
 
 const app = express();
 
@@ -16,12 +17,9 @@ app.use(
 );
 app.use(express.json());
 
-// Use user routes
+app.use('/api', passwordRoutes);
 app.use('/api/users', userRoutes);
-
-// Use message routes
-app.use('/api/messages', messageRoutes);
-
 app.use('/api/stats', statsRoutes);
+app.use('/api/messages', messageRoutes);
 
 export default app;

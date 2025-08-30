@@ -3,12 +3,6 @@ import { Outlet } from 'react-router-dom';
 
 import Navbar from '../components/Navbar';
 
-/**
- * AppLayout
- * - Mobile-first full-height page shell
- * - Handles safe-area insets (iOS/Android)
- * - Provides a max-width container for content pages
- */
 const AppLayout = (): JSX.Element => {
   return (
     <div className="min-h-dvh bg-emerald-500 text-gray-900 dark:bg-gray-900 dark:text-gray-100">

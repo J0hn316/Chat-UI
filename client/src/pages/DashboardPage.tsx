@@ -70,7 +70,7 @@ const DashboardPage = (): JSX.Element => {
 
       {/* Error */}
       {error && (
-        <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="mb-4 text-sm text-red dark:text-red">
           {error}
         </p>
       )}
