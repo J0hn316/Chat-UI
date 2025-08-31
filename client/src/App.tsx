@@ -15,9 +15,9 @@ import AboutPage from './pages/AboutPage';
 import PageNotFound from './pages/NotFoundPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import RestPasswordPage from './pages/ResetPasswordPage';
 import ProtectNotFound from './pages/ProtectedNotFoundPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import RestPasswordPage from './pages/ResetPasswordPage';
 
 const App = (): JSX.Element => {
   return (
