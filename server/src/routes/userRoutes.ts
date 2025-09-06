@@ -7,8 +7,8 @@ import { getCurrentUser, getAllUsers } from '../controllers/userController';
 const router = Router();
 
 // Public routes
-router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/register', registerUser);
 
 // 🔐 Protected route to get current user
 router.get('/me', authMiddleware, getCurrentUser);

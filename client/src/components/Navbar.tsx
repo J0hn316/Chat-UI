@@ -126,7 +126,7 @@ const Navbar = (): JSX.Element => {
                 closeMenu();
               }}
               type="button"
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              className="bg-rose-500 hover:bg-rose-700 text-white px-3 py-1 rounded"
             >
               Logout
             </button>

@@ -49,7 +49,7 @@ export const requestPasswordReset = async (
   }
 };
 
-export const restPassword = async (req: Request, res: Response) => {
+export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token, email, password, confirmPassword } = req.body as {
       token?: string;

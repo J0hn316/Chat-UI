@@ -3,9 +3,9 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/authMiddleware';
 import {
   sendMessage,
-  getMessagesWithUser,
-  markedReadMessages,
   toggleReaction,
+  markedReadMessages,
+  getMessagesWithUser,
 } from '../controllers/messageController';
 
 const router = Router();

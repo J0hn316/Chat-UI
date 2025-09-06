@@ -28,8 +28,8 @@ const App = (): JSX.Element => {
           <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<RestPasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           {/* Global Catch-all 404 for public/unknown roots */}
           <Route path="*" element={<PageNotFound />} />
         </Route>
@@ -46,9 +46,9 @@ const App = (): JSX.Element => {
           }
         >
           <Route path="/home" element={<HomePage />} />
-          <Route path="about" element={<AboutPage />} />
-          <Route path="chat" element={<ChatPage />} />
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
 
           {/* Nested catch-all 404 (protected area only) */}
           <Route path="*" element={<ProtectNotFound />} />

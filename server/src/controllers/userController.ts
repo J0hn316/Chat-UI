@@ -10,12 +10,14 @@ export const getCurrentUser = async (
 ): Promise<void> => {
   try {
     const userId = req.userId;
+
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
     const user = await UserModel.findById(userId).select('-password');
+
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
@@ -57,13 +59,15 @@ export const getAllUsers = async (
       io?.presence ??
       new Map<string, { sockets: Set<string>; lastSeen?: Date | null }>();
 
-    const enriched = users.map((u) => {
-      const entry = presence.get(String(u._id));
+    const enriched = users.map((user) => {
+      const entry = presence.get(String(user._id));
       const isOnline = !!entry && entry.sockets.size > 0;
-      const lastSeen = isOnline ? null : u.lastSeen ?? entry?.lastSeen ?? null;
+      const lastSeen = isOnline
+        ? null
+        : user.lastSeen ?? entry?.lastSeen ?? null;
 
       return {
-        ...u,
+        ...user,
         isOnline,
         lastSeen: lastSeen ? new Date(lastSeen).toISOString() : null,
       };

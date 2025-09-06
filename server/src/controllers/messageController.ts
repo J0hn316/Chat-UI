@@ -8,8 +8,8 @@ export const sendMessage = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { content, recipientId } = req.body;
   const userId = req.userId;
+  const { content, recipientId } = req.body;
 
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });
@@ -60,8 +60,8 @@ export const getMessagesWithUser = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { userId: otherUserId } = req.params;
   const userId = req.userId;
+  const { userId: otherUserId } = req.params;
 
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });
@@ -116,6 +116,7 @@ export const markedReadMessages = async (
     }
 
     const ids = unread.map((m) => m._id);
+
     await Message.updateMany(
       { _id: { $in: ids } },
       { $set: { readAt: new Date() } }
@@ -141,9 +142,9 @@ export const toggleReaction = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
+  const userId = req.userId;
   const { id: messageId } = req.params;
   const { emoji } = req.body as { emoji?: string };
-  const userId = req.userId;
 
   if (!userId) {
     res.status(401).json({ message: 'Unauthorized' });
@@ -167,6 +168,7 @@ export const toggleReaction = async (
 
     // Normalize reactions to an array
     const reactions = Array.isArray(msg.reactions) ? msg.reactions : [];
+
     if (!Array.isArray(msg.reactions)) msg.reactions = reactions;
 
     const getOwnerId = (reaction: { user: any }): string =>

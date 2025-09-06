@@ -9,9 +9,9 @@ type Presence = {
   lastSeen?: Date | null; // when they were last online
 };
 
+const OFFLINE_GRACE_MS = 2500;
 const presence = new Map<string, Presence>();
 const presenceTimers = new Map<string, NodeJS.Timeout>(); // 👈 pending offline timers
-const OFFLINE_GRACE_MS = 5000; // 👈 5s grace
 
 export const setupSocket = (server: HttpServer): SocketIOServer => {
   const io = new SocketIOServer(server, {
@@ -52,7 +52,7 @@ export const setupSocket = (server: HttpServer): SocketIOServer => {
       entry.lastSeen = null; // online
       presence.set(userId, entry);
 
-      // broadcast presence to everyone (or to friends/contacts if you have that)
+      // broadcast presence to everyone
       io.emit('presence:online', { userId });
       broadcastOnlineCount();
     });
@@ -82,8 +82,6 @@ export const setupSocket = (server: HttpServer): SocketIOServer => {
         await newMessage.save();
         await newMessage.populate('sender', 'username');
         await newMessage.populate('recipient', 'username');
-
-        // console.log('📩 Message created:', newMessage);
 
         // Emit the new message to both sender and recipient
         io.to(senderId).emit('message:new', newMessage);

@@ -36,7 +36,9 @@ const ForgotPasswordPage = (): JSX.Element => {
   return (
     <section className="mx-auto w-full max-w-md">
       <header className="mb-6 text-center">
-        <h1 className="text-xl sm:text-2xl font-semibold">Forgot Password</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold dark:text-white">
+          Forgot Password
+        </h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
           Enter your email and we’ll send you a reset link.
         </p>
@@ -62,7 +64,10 @@ const ForgotPasswordPage = (): JSX.Element => {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label htmlFor="email" className="block text-sm mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm mb-1 dark:text-white"
+            >
               Email
             </label>
             <input

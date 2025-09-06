@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import api from '../utils/api';
 import type { User } from '../types/User';
-import { AuthContext } from './AuthContextInstance';
+import AuthContext from './AuthContextInstance';
 import { joinUserRoom, socket } from '../utils/socket';
 
 const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
